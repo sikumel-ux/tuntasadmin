@@ -2,22 +2,18 @@
 
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: #1A1714; /* Background gelap KOPITALIS / TUNTAS */
+    background-color: #F8FAFC; /* Slate-50 Terang & Adem */
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Custom Scrollbar biar makin sleek */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #1A1714;
+    background: #F8FAFC;
 }
 ::-webkit-scrollbar-thumb {
-    background: #2D2824;
+    background: #CBD5E1;
     border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #0A5C36;
 }
