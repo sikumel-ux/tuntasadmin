@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TUNTAS - Panel Input Pengurus</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="antialiased text-slate-700 bg-slate-50 min-h-screen p-4 flex items-center justify-center">
+
+    <div id="loadingOverlayAdmin" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col gap-2" style="display: none;">
+        <i class="fa-solid fa-spinner animate-spin text-2xl text-emerald-600"></i>
+        <span class="text-xs font-bold text-slate-500 tracking-wider">Menyimpan Ke Firebase...</span>
+    </div>
+
+    <div id="adminNotificationAlert" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 p-4 rounded-xl text-xs font-bold shadow-md"></div>
+
+    <div class="w-full max-w-md bg-white border border-slate-100 shadow-xl rounded-[2.5rem] p-6 relative overflow-hidden">
+        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-600 to-teal-700"></div>
+        
+        <div class="mb-6">
+            <h1 class="text-lg font-black text-slate-800 tracking-tight uppercase">Pencatatan Iuran Sampah</h1>
+            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Admin RT 04 Dongkelan</p>
+        </div>
+
+        <form id="formInputIuranAdmin" onsubmit="eksekusiFormAdmin(event)" class="space-y-4">
+            <div>
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Tipe Warga</label>
+                <select id="selTipeUser" onchange="aturFormBerdasarkanTipe()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
+                    <option value="Anggota Tetap">ANGGOTA TETAP (BULANAN)</option>
+                    <option value="PON">WARGA PON (HARIAN/BAKAR)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Firebase Key Warga</label>
+                    <input type="text" id="inWargaKey" placeholder="Contoh: -Nxxxxxx" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Nama Warga</label>
+                    <input type="text" id="inNamaWarga" placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
+                </div>
+            </div>
+
+            <div id="wrapperBulanTetap">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Iuran Untuk Bulan</label>
+                <select id="selPilihanBulan" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
+                    <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option>
+                    <option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option>
+                    <option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option>
+                    <option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+                </select>
+            </div>
+
+            <div id="wrapperHariPon" class="hidden grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Hari Pembakaran</label>
+                    <select id="selHariBakar" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
+                        <option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option>
+                        <option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Tanggal Pembakaran</label>
+                    <input type="text" id="inTanggalBakar" placeholder="Contoh: 10 Juli 2026" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Nominal Uang (Rp)</label>
+                    <input type="number" id="inNominalInput" placeholder="40000" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Nama Admin / Petugas</label>
+                    <input type="text" id="inNamaAdmin" value="APRIYANTO" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
+                </div>
+            </div>
+
+            <div class="pt-3">
+                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-800 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-md active:scale-[0.98] transition-transform">
+                    Simpan & Terbitkan Kuitansi
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        function aturFormBerdasarkanTipe() {
+            const tipe = document.getElementById('selTipeUser').value;
+            const wrapTetap = document.getElementById('wrapperBulanTetap');
+            const wrapPon = document.getElementById('wrapperHariPon');
+            
+            if(tipe === "PON") {
+                wrapTetap.classList.add('hidden');
+                wrapPon.classList.remove('hidden');
+            } else {
+                wrapTetap.classList.remove('hidden');
+                wrapPon.classList.add('hidden');
+            }
+        }
+
+        function eksekusiFormAdmin(e) {
+            e.preventDefault();
+            
+            const d = new Date();
+            const opsi = { year: 'numeric', month: 'long', day: 'numeric' };
+            const tanggalHariIniFormatted = d.toLocaleDateString('id-ID', opsi);
+
+            // Bungkus data dom input ke dalam satu kesatuan Object Parameter
+            const dataForm = {
+                wargaKey: document.getElementById('inWargaKey').value.trim(),
+                namaWarga: document.getElementById('inNamaWarga').value.trim(),
+                tipeUser: document.getElementById('selTipeUser').value,
+                nominalInput: document.getElementById('inNominalInput').value,
+                namaAdminLogin: document.getElementById('inNamaAdmin').value.trim(),
+                tanggalHariIni: tanggalHariIniFormatted,
+                
+                // Parameter Kondisional
+                pilihanBulan: document.getElementById('selPilihanBulan').value,
+                hariPembakaran: document.getElementById('selHariBakar').value,
+                tanggalBakar: document.getElementById('inTanggalBakar').value.trim()
+            };
+
+            // Lempar data ke fungsi core simpanIuranOlehAdmin() yang ada di file admin.js
+            if(typeof simpanIuranOlehAdmin === "function") {
+                simpanIuranOlehAdmin(dataForm);
+            } else {
+                alert("Fungsi simpanIuranOlehAdmin() pada file admin.js belum termuat sempurna!");
+            }
+        }
+    </script>
+</body>
+</html>
