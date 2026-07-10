@@ -97,7 +97,6 @@ body {
     font-weight: 800; 
 }
 
-/* Custom UI Selector Styles */
 .month-chip.selected { 
     background-color: #064e3b; 
     color: white; 
@@ -105,19 +104,11 @@ body {
 }
 
 .status-card.selected[data-status="diambil"] { 
-    background-color: #d1fae5; 
-    color: #065f46; 
-    border-color: #10b981; 
+    background-color: #d1fae5; color: #065f46; border-color: #10b981; 
 }
-
 .status-card.selected[data-status="diantar"] { 
-    background-color: #e0f2fe; 
-    color: #0369a1; 
-    border-color: #0ea5e9; 
+    background-color: #e0f2fe; color: #0369a1; border-color: #0ea5e9; 
 }
-
 .status-card.selected[data-status="kosong"] { 
-    background-color: #fee2e2; 
-    color: #991b1b; 
-    border-color: #ef4444; 
+    background-color: #fee2e2; color: #991b1b; border-color: #ef4444; 
 }
