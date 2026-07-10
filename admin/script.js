@@ -12,7 +12,7 @@ const firebaseConfig = {
 };
 
 const DB_URL = firebaseConfig.databaseURL;
-let MEMORI_WARGA_GLOBAL = {}; // Menyimpan data semua warga dari database
+let MEMORI_WARGA_GLOBAL = {}; 
 let DATA_KAS_TERFILTER = []; 
 let ACTION_HAPUS_CALLBACK = null; 
 let BULAN_TERPILIH_ARRAY = [];
@@ -42,7 +42,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ==========================================
-// HELPERS & HARIAN/BULANAN UI DYNAMIC CONTEXT
+// HELPERS & DYNAMIC UI CONTEXT
 // ==========================================
 
 function generateKodePON() {
@@ -58,9 +58,9 @@ function dapatkanKeteranganHariTanggal(tanggalString) {
     return `${daftarHari[dateObj.getDay()]}, ${dateObj.getDate()} ${daftarBulan[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
 }
 
-// MENYARING DROPDOWN WARGA DINAMIS (PILIHAN USER)
+// SARING DROPDOWN INPUT IURAN (BERDASARKAN TIPE)
 function saringDropdownWargaBerdasarkanTipe() {
-    const tipeTerpilih = document.getElementById('iuranTipeAnggota').value; // 'tetap' atau 'pon'
+    const tipeTerpilih = document.getElementById('iuranTipeAnggota').value; 
     const dropdownWarga = document.getElementById('iuranWarga');
     const boxBulan = document.getElementById('boxPilihanBulanWrapper');
     
@@ -68,22 +68,32 @@ function saringDropdownWargaBerdasarkanTipe() {
     resetPilihanBulan();
     document.getElementById('iuranPon').value = "";
 
-    // Sembunyikan form bulan jika memilih PON
     if (tipeTerpilih === 'pon') {
         boxBulan.classList.add('hidden');
     } else {
         boxBulan.classList.remove('hidden');
     }
 
-    // Filter data warga global yang bertipe sama
     Object.keys(MEMORI_WARGA_GLOBAL).forEach(key => {
         const warga = MEMORI_WARGA_GLOBAL[key];
-        // Jika data lama belum punya field tipe, asumsikan sebagai 'tetap'
         const tipeWarga = warga.tipe || 'tetap'; 
         
         if (tipeWarga === tipeTerpilih) {
             dropdownWarga.insertAdjacentHTML('beforeend', `<option value="${key}">${warga.nama.toUpperCase()}</option>`);
         }
+    });
+}
+
+// PERBAIKAN: DROPDOWN LAPORAN SAMPAH OPERASIONAL JUGA IKUT DISARING AUTOMATIS
+function perbaruiDropdownSampahOperasional() {
+    const d2 = document.getElementById('smphWarga');
+    d2.innerHTML = '<option value="">-- PILIH NAMA WARGA --</option>';
+    
+    Object.keys(MEMORI_WARGA_GLOBAL).forEach(key => {
+        const w = MEMORI_WARGA_GLOBAL[key];
+        // Menampilkan label [PON] atau [TETAP] di dropdown sampah biar admin tidak bingung
+        const label = (w.tipe || 'tetap').toUpperCase();
+        d2.insertAdjacentHTML('beforeend', `<option value="${key}">[${label}] ${w.nama.toUpperCase()}</option>`);
     });
 }
 
@@ -154,7 +164,7 @@ function switchTab(id) {
 }
 
 // ==========================================
-// CORE SYSTEM OPERATIONS & LOGIC DATA
+// CORE DATA OPERATIONS
 // ==========================================
 
 async function sinkronUlangData() {
@@ -235,7 +245,9 @@ function hapusKas(key) {
     openModal('mKonfirmasiHapus');
 }
 
-// PROCESS INPUT DATA IURAN & KUITANSI (FIXED & SEPARATED LINKS)
+// =================================================================
+// PENERBITAN IURAN & STRUKTUR KUITANSI BARU (FIXED)
+// =================================================================
 function simpanIuran(e) {
     e.preventDefault();
     
@@ -247,40 +259,58 @@ function simpanIuran(e) {
     const nominalTerbayar = parseInt(document.getElementById('iuranNominal').value) || 0;
     
     if (!drop.value) { showNotif('Silakan pilih nama warga terlebih dahulu!', 'gagal'); return; }
-    if (!noPon) { showNotif('Token Kuitansi Kosong, Silakan pilih ulang warga!', 'gagal'); return; }
 
     let bPeriode = "";
-    let formatKeteranganIuran = "";
+    let formatKasHistori = ""; 
+    let narasiKuitansiLengkap = ""; 
     let pesanWA = "";
     let linkKuitansi = "";
 
     if (tipe === 'pon') {
         const hariTanggalIndo = dapatkanKeteranganHariTanggal(tglInput);
-        bPeriode = `HARIAN (${hariTanggalIndo})`;
+        bPeriode = hariTanggalIndo.toUpperCase();
         
-        // Perbaikan kalimat mutasi kas masuk khusus PON (Tidak menggunakan kata "bulan")
-        formatKeteranganIuran = `Diterima dari Bapak/Ibu ${nWarga}, untuk pembayaran pembakaran sampah hari ${hariTanggalIndo}, sebesar: Rp ${nominalTerbayar.toLocaleString('id-ID')}`;
+        // Poin 2: Histori Kas dibuat ringkas (Murni PON - NAMA)
+        formatKasHistori = `PON - ${nWarga}`;
+        
+        // Poin 3: Narasi lengkap disimpan khusus untuk dibaca file pon.html
+        narasiKuitansiLengkap = `Diterima dari Bapak/Ibu ${nWarga}, untuk pembayaran pembakaran sampah hari ${hariTanggalIndo}, sebesar:`;
         pesanWA = `Terima+kasih+Bapak%2FIbu+${encodeURIComponent(nWarga)},+pembayaran+pembakaran+sampah+hari+${encodeURIComponent(hariTanggalIndo)}+sudah+diterima.+Kuitansi+digital+PON:+`;
         
-        // Pemisahan halaman file bukti untuk PON
+        // Poin 3: Nama file diganti ke pon.html
         linkKuitansi = `https://tuntas.web.id/pon.html?id=${noPon}`;
         document.getElementById('textJenisKuitansiHeader').innerText = "Kuitansi Digital PON Siap!";
     } else {
-        bPeriode = document.getElementById('iuranBulan').value.trim();
+        bPeriode = document.getElementById('iuranBulan').value.trim().toUpperCase();
         if (!bPeriode) { showNotif('Silakan pilih bulan iuran terlebih dahulu!', 'gagal'); return; }
         
-        formatKeteranganIuran = `${nWarga} - ${bPeriode.toUpperCase()} (PO: ${noPon})`;
+        // Narasi Histori Kas Anggota Tetap
+        formatKasHistori = `${nWarga} - ${bPeriode}`;
+        
+        // Narasi lengkap disimpan khusus untuk dibaca file kuitansi.html
+        narasiKuitansiLengkap = `Diterima dari Bapak/Ibu ${nWarga}, untuk iuran sampah periode bulan ${bPeriode}, sebesar:`;
         pesanWA = `Terima+kasih+Bapak%2FIbu+${encodeURIComponent(nWarga)},+pembayaran+iuran+TUNTAS+periode+${encodeURIComponent(bPeriode)}+sudah+diterima.+Kuitansi+digital:+`;
         
-        // Halaman bukti untuk Anggota Tetap
-        linkKuitansi = `https://tuntas.web.id/bukti.html?id=${noPon}`;
+        // Poin 3: Nama file diganti ke kuitansi.html
+        linkKuitansi = `https://tuntas.web.id/kuitansi.html?id=${noPon}`;
         document.getElementById('textJenisKuitansiHeader').innerText = "Kuitansi Anggota Tetap Siap!";
     }
 
-    const body = { tanggal: tglInput, tipe_anggota: tipe, warga_key: drop.value, nama_warga: nWarga, pon: noPon, bulan: bPeriode.toUpperCase(), nominal: nominalTerbayar, token_kuitansi: noPon };
+    // Mengirim payload lengkap ke Firebase Realtime Database
+    const body = { 
+        tanggal: tglInput, 
+        tipe_anggota: tipe, 
+        warga_key: drop.value, 
+        nama_warga: nWarga, 
+        pon: noPon, 
+        bulan: bPeriode, 
+        nominal: nominalTerbayar, 
+        token_kuitansi: noPon,
+        narasi_kuitansi: narasiKuitansiLengkap // Akan dibaca oleh kuitansi.html / pon.html
+    };
 
     fetch(`${DB_URL}/iuran_sampah.json`, { method: 'POST', body: JSON.stringify(body) }).then(() => {
-        const kasKredit = { jenis: 'masuk', nominal: body.nominal, keterangan: formatKeteranganIuran, tanggal: body.tanggal };
+        const kasKredit = { jenis: 'masuk', nominal: body.nominal, keterangan: formatKasHistori, tanggal: body.tanggal };
         fetch(`${DB_URL}/kas_rt04.json`, { method: 'POST', body: JSON.stringify(kasKredit) }).then(() => { muatSistemKas(); muatRiwayatIuran(); });
 
         document.getElementById('textKodeKuitansi').innerText = `TOKEN KUITANSI: ${noPon}\nURL: ${linkKuitansi}`;
@@ -300,22 +330,19 @@ async function muatSistemWarga() {
     try {
         const res = await fetch(`${DB_URL}/warga_rt04.json`);
         const data = await res.json();
-        MEMORI_WARGA_GLOBAL = data || {}; // Simpan ke variable global
+        MEMORI_WARGA_GLOBAL = data || {}; 
         
         const list = document.getElementById('listWarga');
-        const d2 = document.getElementById('smphWarga');
-
         list.innerHTML = ""; 
-        d2.innerHTML = '<option value="">-- PILIH NAMA WARGA --</option>';
         
-        // Pemicu saring dropdown iuran pertama kali
+        // Saring dropdown iuran & operasional sampah secara terpisah
         saringDropdownWargaBerdasarkanTipe();
+        perbaruiDropdownSampahOperasional();
 
         if(!data) return;
         Object.keys(data).forEach(key => {
             const w = data[key];
             const tipeLabel = (w.tipe || 'tetap').toUpperCase();
-            d2.insertAdjacentHTML('beforeend', `<option value="${key}">${w.nama.toUpperCase()}</option>`);
             list.insertAdjacentHTML('beforeend', `
                 <div class="p-3 flex justify-between items-center bg-white my-1 rounded-xl border border-slate-100">
                     <div>
@@ -335,7 +362,7 @@ async function muatSistemWarga() {
 function simpanWarga(e) {
     e.preventDefault();
     const body = { 
-        tipe: document.getElementById('addTipe').value, // 'tetap' atau 'pon'
+        tipe: document.getElementById('addTipe').value, 
         nama: document.getElementById('addNama').value.trim().toUpperCase(), 
         username: document.getElementById('addHp').value.trim(), 
         password: document.getElementById('addPass').value.trim(), 
