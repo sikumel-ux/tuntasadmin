@@ -18,34 +18,37 @@ const DOMAIN_UTAMA_WARGA = "https://m.tuntas.web.id";
 let dataWargaGlobal = {};
 
 window.addEventListener('DOMContentLoaded', async () => {
-    // Jalankan pengecekan session admin sederhana jika diperlukan
+    // Membaca sesi login pengurus RT jika ada
     const sesi = JSON.parse(localStorage.getItem("warga_session"));
     if(sesi) {
         document.getElementById('namaAdmin').innerText = `Admin: ${sesi.nama}`;
     }
 
-    // Ambil basis data awal secara parallel
+    // Memuat data secara paralel dari Firebase Realtime DB
     await muatDaftarWarga();
     await muatRiwayatIuran();
+    await muatSaranWarga();
 
-    // Event Listener interaktif jika pilihan warga berubah tipe (PON / Tetap)
+    // Event listener interaktif: Sembunyikan bulan jika warga bertipe PON
     document.getElementById('inputPilihWarga').addEventListener('change', (e) => {
         const keyWarga = e.target.value;
         const akun = dataWargaGlobal[keyWarga];
         const rowBulan = document.getElementById('rowFormBulan');
         
         if (akun && akun.tipe === "PON") {
-            rowBulan.style.display = 'none'; // Sembunyikan jika Sektor PON
+            rowBulan.style.display = 'none';
         } else {
-            rowBulan.style.display = 'block'; // Tampilkan jika Anggota Tetap
+            rowBulan.style.display = 'block';
         }
     });
 
-    // Handler Kirim Form Iuran
+    // Submit handler form input iuran sampah
     document.getElementById('formInputIuran').addEventListener('submit', prosesInputIuranBaru);
 });
 
-// 1. Ambil List Warga RT 04 dari Firebase untuk Dropdown & Widget
+// ==========================================
+// 1. MODUL WARGA (`warga_rt04`)
+// ==========================================
 async function muatDaftarWarga() {
     try {
         const res = await fetch(`${DB_URL}/warga_rt04.json`);
@@ -55,7 +58,7 @@ async function muatDaftarWarga() {
         const selectWarga = document.getElementById('inputPilihWarga');
         selectWarga.innerHTML = '<option value="" disabled selected>-- Pilih Anggota Warga --</option>';
 
-        let totalTetap = 0;
+        let totalTetap = 0; 
         let totalPon = 0;
 
         Object.keys(dataWargaGlobal).forEach(key => {
@@ -65,19 +68,23 @@ async function muatDaftarWarga() {
             opt.innerText = `${warga.nama} (${warga.tipe || 'Anggota Tetap'})`;
             selectWarga.appendChild(opt);
 
-            // Hitung statistik widget
-            if(warga.tipe === "PON") { totalPon++; } else { totalTetap++; }
+            if(warga.tipe === "PON") { 
+                totalPon++; 
+            } else { 
+                totalTetap++; 
+            }
         });
 
-        document.getElementById('widgetTotalTetap').innerHTML = `${totalTetap} <span class="text-xs text-slate-500 font-bold">Jiwa</span>`;
-        document.getElementById('widgetTotalPon').innerHTML = `${totalPon} <span class="text-xs text-slate-500 font-bold">User</span>`;
-
+        document.getElementById('widgetTotalTetap').innerHTML = `${totalTetap} <span class="text-xs text-slate-400 font-bold">Jiwa</span>`;
+        document.getElementById('widgetTotalPon').innerHTML = `${totalPon} <span class="text-xs text-slate-400 font-bold">User</span>`;
     } catch (error) {
-        console.error("Gagal memuat daftar warga:", error);
+        console.error("Gagal memuat basis data warga:", error);
     }
 }
 
-// 2. Ambil Riwayat Transaksi Iuran dari Firebase
+// ==========================================
+// 2. MODUL KEUANGAN IURAN (`iuran_sampah`)
+// ==========================================
 async function muatRiwayatIuran() {
     try {
         const res = await fetch(`${DB_URL}/iuran_sampah.json`);
@@ -86,15 +93,13 @@ async function muatRiwayatIuran() {
         tabel.innerHTML = '';
 
         if (!data) {
-            tabel.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-zinc-600 font-bold uppercase">Belum ada riwayat pembayaran.</td></tr>`;
+            tabel.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-slate-400 font-bold uppercase tracking-wider">Belum ada riwayat pembayaran.</td></tr>`;
             return;
         }
 
-        let totalKas = 0;
+        let totalKas = 0; 
         let lunasBulanIni = 0;
-        const bulanSekarang = "Juni"; // Bisa disesuaikan dinamis jika perlu
-
-        // Urutkan berdasarkan data terbaru (terbalik)
+        const bulanSekarang = "Juni"; 
         const keysTerbalik = Object.keys(data).reverse();
 
         keysTerbalik.forEach(key => {
@@ -102,31 +107,31 @@ async function muatRiwayatIuran() {
             const nominal = parseInt(iuran.nominal) || 0;
             totalKas += nominal;
 
-            if (iuran.bulan === bulanSekarang && iuran.tipe_user !== "PON") {
-                lunasBulanIni++;
+            if (iuran.bulan === bulanSekarang && iuran.tipe_user !== "PON") { 
+                lunasBulanIni++; 
             }
 
-            const tr = document.createElement('tr');
-            tr.className = "border-b border-zinc-800/40 hover:bg-zinc-800/20 transition-colors";
+            // Routing URL Kuitansi memakai parameter token_kuitansi (T-XXXXXX)
+            const tokenKuitansi = iuran.token_kuitansi || "T-000000";
+            const urlKuitansi = `${DOMAIN_UTAMA_WARGA}/kuitansi/?id=${tokenKuitansi}`;
             
-            // Generate link url kuitansi eksternal absolut ke subdomain/domain warga
-            const urlKuitansi = `${DOMAIN_UTAMA_WARGA}/kuitansi/index.html?id=${key}`;
-            
-            // Pesan WhatsApp otomatis untuk warga
+            // Format encode pesan WhatsApp otomatis
             const teksWA = window.encodeURIComponent(`Halo Bpk/Ibu ${iuran.nama_warga}, berikut adalah bukti pembayaran resmi iuran sampah TUNTAS RT 04 Anda. Silakan lihat kuitansi digital di tautan berikut: ${urlKuitansi}`);
 
+            const tr = document.createElement('tr');
+            tr.className = "border-b border-slate-100 hover:bg-slate-50 transition-colors";
             tr.innerHTML = `
                 <td class="py-3 px-2">
-                    <div class="font-black text-white uppercase">${iuran.nama_warga}</div>
-                    <div class="text-[9px] text-zinc-500 tracking-wider">${iuran.tipe_user === 'PON' ? 'Sektor PON' : 'Warga Tetap'}</div>
+                    <div class="font-black text-slate-800 uppercase text-[11px]">${iuran.nama_warga}</div>
+                    <div class="text-[9px] text-slate-400 font-bold tracking-wider">${iuran.tipe_user === 'PON' ? 'Sektor PON' : 'Warga Tetap'}</div>
                 </td>
-                <td class="py-3 px-2 text-zinc-400 font-medium">${iuran.tipe_user === 'PON' ? '<span class="text-teal-500">Insidental</span>' : iuran.bulan}</td>
-                <td class="py-3 px-2 font-black text-emerald-400">Rp ${nominal.toLocaleString('id-ID')}</td>
-                <td class="py-3 px-2 text-center flex items-center justify-center gap-1.5 h-full pt-4">
-                    <a href="${urlKuitansi}" target="_blank" class="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white px-2 py-1 rounded-md text-[10px] font-bold transition-all">
+                <td class="py-3 px-2 text-slate-500 font-bold">${iuran.tipe_user === 'PON' ? '<span class="text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded text-[10px]">Insidental</span>' : iuran.bulan}</td>
+                <td class="py-3 px-2 font-black text-[#0A5C36]">Rp ${nominal.toLocaleString('id-ID')}</td>
+                <td class="py-3 px-2 text-center flex items-center justify-center gap-1.5 pt-3.5">
+                    <a href="${urlKuitansi}" target="_blank" class="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 px-2 py-1 rounded-md text-[10px] font-black transition-all">
                         <i class="fa-solid fa-arrow-up-right-from-square"></i> Struk
                     </a>
-                    <a href="https://api.whatsapp.com/send?text=${teksWA}" target="_blank" class="bg-emerald-600/20 hover:bg-emerald-600 text-emerald-400 hover:text-white border border-emerald-500/30 px-2 py-1 rounded-md text-[10px] font-bold transition-all">
+                    <a href="https://api.whatsapp.com/send?text=${teksWA}" target="_blank" class="bg-emerald-50 hover:bg-[#0A5C36] text-[#0A5C36] hover:text-white border border-emerald-200 px-2 py-1 rounded-md text-[10px] font-black transition-all">
                         <i class="fa-brands fa-whatsapp"></i> Bagikan
                     </a>
                 </td>
@@ -134,19 +139,15 @@ async function muatRiwayatIuran() {
             tabel.appendChild(tr);
         });
 
-        // Update nilai widget atas
         document.getElementById('widgetTotalKas').innerText = `Rp ${totalKas.toLocaleString('id-ID')}`;
-        document.getElementById('widgetWargaLunas').innerHTML = `${lunasBulanIni} <span class="text-xs text-slate-500 font-bold">Warga</span>`;
-
+        document.getElementById('widgetWargaLunas').innerHTML = `${lunasBulanIni} <span class="text-xs text-slate-400 font-bold">Warga</span>`;
     } catch (error) {
-        console.error("Gagal memuat riwayat transaksi:", error);
+        console.error("Gagal memuat riwayat pembayaran:", error);
     }
 }
 
-// 3. Proses Simpan Transaksi Iuran Baru ke Firebase
 async function prosesInputIuranBaru(e) {
     e.preventDefault();
-    
     const keyWargaSelected = document.getElementById('inputPilihWarga').value;
     const nominalInput = document.getElementById('inputNominalIuran').value.trim();
     const bulanInput = document.getElementById('inputBulanIuran').value;
@@ -155,15 +156,13 @@ async function prosesInputIuranBaru(e) {
     
     const warga = dataWargaGlobal[keyWargaSelected];
     const infoSesiAdmin = JSON.parse(localStorage.getItem("warga_session")) || { nama: "APRIYANO" };
-    
-    // Set format penanggalan lokal
     const opsiTanggal = { year: 'numeric', month: 'long', day: 'numeric' };
     const tanggalHariIni = new Date().toLocaleDateString('id-ID', opsiTanggal);
 
-    // Bikin string token kuitansi acak acuan
-    const tokenAcak = "T-" + Math.floor(100000 + Math.random() * 900000);
+    // Generate kode token_kuitansi acak 6 angka sesuai struktur (T-XXXXXX)
+    const angkaRandom = Math.floor(100000 + Math.random() * 900000);
+    const tokenAcak = `T-${angkaRandom}`;
 
-    // Susun payload terstandarisasi untuk database
     const payloadIuran = {
         username: warga.username,
         nama_warga: warga.nama,
@@ -185,16 +184,89 @@ async function prosesInputIuranBaru(e) {
         if (res.ok) {
             tampilkanToast("Kuitansi Berhasil Diterbitkan!");
             document.getElementById('formInputIuran').reset();
-            
-            // Set default baris bulan kembali muncul jika sebelumnya tersembunyi
             document.getElementById('rowFormBulan').style.display = 'block';
-
-            // Muat ulang data biar langsung sinkron ter-update
             await muatRiwayatIuran();
         }
     } catch (error) {
-        alert("Gagal menyimpan data ke database server.");
+        alert("Gagal mengamankan data ke Realtime DB Server.");
     }
+}
+
+// ==========================================
+// 3. MODUL KOTAK SARAN & KRITIK (`saran_warga`)
+// ==========================================
+async function muatSaranWarga() {
+    try {
+        const res = await fetch(`${DB_URL}/saran_warga.json`);
+        const data = await res.json();
+        const container = document.getElementById('containerSaranWarga');
+        container.innerHTML = '';
+
+        if (!data) {
+            container.innerHTML = `<div class="col-span-2 py-8 text-center text-slate-400 font-bold uppercase tracking-wider text-xs">Kotak saran masih kosong, bro.</div>`;
+            return;
+        }
+
+        Object.keys(data).reverse().forEach(key => {
+            const item = data[key];
+            const div = document.createElement('div');
+            div.className = "bg-white border border-slate-200/70 p-5 rounded-2xl space-y-3 flex flex-col justify-between shadow-sm";
+            
+            div.innerHTML = `
+                <div class="space-y-1.5">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-black text-xs text-slate-800 uppercase tracking-tight">${item.nama_warga || 'Warga Anonim'}</h4>
+                        <span class="text-[8px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-bold">${item.tanggal || '-'}</span>
+                    </div>
+                    <p class="text-xs text-slate-600 font-medium leading-relaxed italic">"${item.isi_saran || '-'}"</p>
+                </div>
+                <div class="pt-2 border-t border-slate-100 flex justify-between items-center">
+                    <span class="text-[8px] font-black uppercase text-amber-700 tracking-wider bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded">
+                        <i class="fa-solid fa-envelope"></i> Aspirasi Masuk
+                    </span>
+                    <button onclick="hapusSaranWarga('${key}')" class="text-slate-400 hover:text-red-600 text-[10px] font-bold uppercase tracking-wider transition-colors">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Hapus
+                    </button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    } catch (error) {
+        console.error("Gagal mengambil data saran:", error);
+    }
+}
+
+async function hapusSaranWarga(key) {
+    if(!confirm("Hapus aspirasi warga ini dari panel kontrol?")) return;
+    try {
+        const res = await fetch(`${DB_URL}/saran_warga/${key}.json`, { method: 'DELETE' });
+        if(res.ok) {
+            tampilkanToast("Saran Berhasil Dihapus");
+            await muatSaranWarga();
+        }
+    } catch (error) {
+        alert("Gagal memproses penghapusan.");
+    }
+}
+
+// ==========================================
+// 4. UTILITAS INTERFASI (Toast & Tab Switcher)
+// ==========================================
+function switchTabAdmin(targetTab) {
+    // Sembunyikan seluruh tab content
+    document.querySelectorAll('.tab-content-admin').forEach(el => el.classList.add('hidden'));
+    
+    // Ubah semua tombol nav kembali ke gaya unselected (Light Mode)
+    document.querySelectorAll('nav button').forEach(btn => {
+        btn.classList.remove('bg-[#0A5C36]', 'text-white', 'shadow-sm');
+        btn.classList.add('bg-white', 'text-slate-500', 'border', 'border-slate-200');
+    });
+
+    // Nyalakan tab target & beri warna hijau utama
+    document.getElementById(`contentTab-${targetTab}`).classList.remove('hidden');
+    const activeBtn = document.getElementById(`btnTab-${targetTab}`);
+    activeBtn.classList.remove('bg-white', 'text-slate-500', 'border', 'border-slate-200');
+    activeBtn.classList.add('bg-[#0A5C36]', 'text-white', 'shadow-sm');
 }
 
 function tampilkanToast(pesan) {
@@ -206,6 +278,6 @@ function tampilkanToast(pesan) {
 
 function prosesLogoutAdmin() {
     localStorage.removeItem("warga_session");
-    alert("Sesi keluar berhasil.");
+    alert("Sesi admin telah berakhir.");
     window.location.reload();
 }
