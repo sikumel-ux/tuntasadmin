@@ -1,0 +1,23 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=600;700;800&display=swap');
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #1A1714; /* Background gelap KOPITALIS / TUNTAS */
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom Scrollbar biar makin sleek */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #1A1714;
+}
+::-webkit-scrollbar-thumb {
+    background: #2D2824;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #0A5C36;
+}
