@@ -274,10 +274,10 @@ function simpanIuran(e) {
         formatKasHistori = `PON - ${nWarga}`;
         
         // Narasi khusus kuitansi terpisah untuk pon.html
-        narasiKuitansiLengkap = `Diterima dari Bapak/Ibu ${nWarga}, untuk pembayaran pembakaran sampah hari ${hariTanggalIndo}, sebesar:`;
+        narasiKuitansiLengkap = `Diterima dari Bapak ${nWarga}, untuk pembayaran pembakaran sampah hari ${hariTanggalIndo}, sebesar:`;
         pesanWA = `Terima+kasih+Bapak%2FIbu+${encodeURIComponent(nWarga)},+pembayaran+pembakaran+sampah+hari+${encodeURIComponent(hariTanggalIndo)}+sudah+diterima.+Kuitansi+digital+PON:+`;
         
-        linkKuitansi = `https://tuntas.web.id/pon.html?id=${noPon}`;
+        linkKuitansi = `https://m.tuntas.web.id/pon.html?id=${noPon}`;
         document.getElementById('textJenisKuitansiHeader').innerText = "Kuitansi Digital PON Siap!";
     } else {
         bPeriode = document.getElementById('iuranBulan').value.trim().toUpperCase();
@@ -290,7 +290,7 @@ function simpanIuran(e) {
         narasiKuitansiLengkap = `Diterima dari Bapak/Ibu ${nWarga}, untuk iuran sampah periode bulan ${bPeriode}, sebesar:`;
         pesanWA = `Terima+kasih+Bapak%2FIbu+${encodeURIComponent(nWarga)},+pembayaran+iuran+TUNTAS+periode+${encodeURIComponent(bPeriode)}+sudah+diterima.+Kuitansi+digital:+`;
         
-        linkKuitansi = `https://tuntas.web.id/kuitansi.html?id=${noPon}`;
+        linkKuitansi = `https://m.tuntas.web.id/kuitansi.html?id=${noPon}`;
         document.getElementById('textJenisKuitansiHeader').innerText = "Kuitansi Anggota Tetap Siap!";
     }
 
