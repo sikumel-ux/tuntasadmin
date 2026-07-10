@@ -272,8 +272,10 @@
         </div>
         <form id="formIuran" onsubmit="simpanIuran(event)" class="space-y-3">
             <input type="date" id="iuranTgl" class="modern-in" required>
-            <select id="iuranWarga" class="modern-in" required><option value="">-- PILIH NAMA WARGA --</option></select>
-            <input type="text" id="iuranPon" placeholder="Nomor PON / No Pesanan" class="modern-in" required>
+            <select id="iuranWarga" class="modern-in" onchange="tanganiPerubahanWarga(this)" required><option value="">-- PILIH NAMA WARGA --</option></select>
+            
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide px-1 -mb-1">Nomor PO (Kuitansi Otomatis)</p>
+            <input type="text" id="iuranPon" placeholder="Pilih warga untuk generate No PO" class="modern-in !bg-slate-100 border-slate-200 text-slate-500 font-mono font-bold" readonly required>
             
             <div class="space-y-1.5">
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-wide px-1">Pilih Periode Bulan</p>
@@ -338,6 +340,16 @@
             muatFotoProfilAdmin(); 
         });
     });
+
+    // GENERATOR OTOMATIS T-6 ANGKA RANDOM SAAT WARGA DIPILIH
+    function tanganiPerubahanWarga(selectElement) {
+        if (selectElement.value !== "") {
+            const angkaAcak = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('iuranPon').value = `T-${angkaAcak}`;
+        } else {
+            document.getElementById('iuranPon').value = "";
+        }
+    }
 
     // SISTEM INTERAKTIF CHIP BULAN MULTI-SELECT
     function pilihBalanIuran(bulanCode) {
@@ -565,19 +577,18 @@
             return;
         }
 
-        const token = `T-${Math.floor(100000 + Math.random() * 900000)}`;
         const drop = document.getElementById('iuranWarga');
         const nWarga = drop.options[drop.selectedIndex].text;
-        const formatKeteranganIuran = `${nWarga} - ${bPeriode.toUpperCase()} (PON: ${noPon})`;
+        const formatKeteranganIuran = `${nWarga} - ${bPeriode.toUpperCase()} (PON: ${noPon})`[span_0](start_span)[span_0](end_span);
 
-        const body = { tanggal: document.getElementById('iuranTgl').value, warga_key: drop.value, nama_warga: nWarga, pon: noPon, bulan: bPeriode.toUpperCase(), nominal: parseInt(document.getElementById('iuranNominal').value)||0, token_kuitansi: token };
+        const body = { tanggal: document.getElementById('iuranTgl').value, warga_key: drop.value, nama_warga: nWarga, pon: noPon, bulan: bPeriode.toUpperCase(), nominal: parseInt(document.getElementById('iuranNominal').value)||0, token_kuitansi: noPon };[span_1](start_span)[span_1](end_span)
 
         fetch(`${DB_URL}/iuran_sampah.json`, { method: 'POST', body: JSON.stringify(body) }).then(() => {
-            const kasKredit = { jenis: 'masuk', nominal: body.nominal, keterangan: formatKeteranganIuran, tanggal: body.tanggal };
+            const kasKredit = { jenis: 'masuk', nominal: body.nominal, keterangan: formatKeteranganIuran, tanggal: body.tanggal }[span_2](start_span)[span_2](end_span);
             fetch(`${DB_URL}/kas_rt04.json`, { method: 'POST', body: JSON.stringify(kasKredit) }).then(() => { muatSistemKas(); muatRiwayatIuran(); });
 
-            const linkKuitansi = `https://tuntas.web.id/bukti.html?id=${token}`;
-            document.getElementById('textKodeKuitansi').innerText = `TOKEN: ${token}\nURL: ${linkKuitansi}`;
+            const linkKuitansi = `https://tuntas.web.id/bukti.html?id=${noPon}`;[span_3](start_span)[span_3](end_span)
+            document.getElementById('textKodeKuitansi').innerText = `TOKEN KUITANSI: ${noPon}\nURL: ${linkKuitansi}`;[span_4](start_span)[span_4](end_span)
             document.getElementById('boxKuitansiLink').classList.remove('hidden');
 
             document.getElementById('btnSalinKuitansi').onclick = () => { navigator.clipboard.writeText(linkKuitansi); showNotif('Link disalin!', 'sukses'); };
