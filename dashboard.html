@@ -3,90 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TUNTAS - Panel Input Pengurus</title>
+    <title>TUNTAS - Portal Administrasi Pengurus</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
+    </style>
 </head>
-<body class="antialiased text-slate-700 bg-slate-50 min-h-screen p-4 flex items-center justify-center">
+<body class="antialiased text-slate-700 bg-slate-100 min-h-screen">
 
-    <div id="loadingOverlayAdmin" class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 flex items-center justify-center flex-col gap-2" style="display: none;">
-        <i class="fa-solid fa-spinner animate-spin text-2xl text-emerald-600"></i>
-        <span class="text-xs font-bold text-slate-500 tracking-wider">Menyimpan Ke Firebase...</span>
+    <!-- Loading System Overlay -->
+    <div id="loadingOverlayAdmin" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center flex-col gap-2" style="display: none;">
+        <div class="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-xs font-bold text-white tracking-widest uppercase mt-2">Menyimpan Log Iuran...</span>
     </div>
 
-    <div id="adminNotificationAlert" class="hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 p-4 rounded-xl text-xs font-bold shadow-md"></div>
+    <!-- Alert Dialog System -->
+    <div id="adminNotificationAlert" class="hidden fixed top-6 left-1/2 -translate-x-1/2 z-50 p-4 rounded-2xl text-xs font-black shadow-2xl tracking-wide uppercase max-w-sm w-11/12 border"></div>
 
-    <div class="w-full max-w-md bg-white border border-slate-100 shadow-xl rounded-[2.5rem] p-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-emerald-600 to-teal-700"></div>
+    <!-- Layout Wrapper Global -->
+    <div class="min-h-screen grid grid-cols-1 lg:grid-cols-12 gap-6 p-4 md:p-8 max-w-6xl mx-auto items-start">
         
-        <div class="mb-6">
-            <h1 class="text-lg font-black text-slate-800 tracking-tight uppercase">Pencatatan Iuran Sampah</h1>
-            <p class="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Admin RT 04 Dongkelan</p>
+        <!-- SIDEBAR INFO / GUIDANCE (Kanan/Kiri tergantung device) -->
+        <div class="lg:col-span-4 bg-slate-900 text-slate-100 p-6 rounded-[2rem] shadow-xl space-y-6 lg:sticky lg:top-8">
+            <div class="space-y-1">
+                <h1 class="text-2xl font-black text-emerald-400 tracking-tight">TUNTAS.</h1>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Turun Tangan Atasi Sampah</p>
+            </div>
+            <div class="h-px bg-slate-800"></div>
+            <div class="space-y-3">
+                <h3 class="text-xs font-extrabold text-slate-300 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-circle-info text-emerald-400"></i> Panduan Input</h3>
+                <ul class="text-[11px] text-slate-400 space-y-2 list-disc list-inside leading-relaxed font-medium">
+                    <li>Pilih <strong class="text-white">Tipe Warga</strong> terlebih dahulu untuk menyesuaikan struktur form.</li>
+                    <li>Sistem otomatis membuat nomor kuitansi unik berawalan kode token <strong class="text-emerald-400">T-XXXXXX</strong>.</li>
+                    <li>Warga terdaftar bisa melihat invoice ini secara instan di portal mereka masing-masing.</li>
+                </ul>
+            </div>
         </div>
 
-        <form id="formInputIuranAdmin" onsubmit="eksekusiFormAdmin(event)" class="space-y-4">
-            <div>
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Tipe Warga</label>
-                <select id="selTipeUser" onchange="aturFormBerdasarkanTipe()" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
-                    <option value="Anggota Tetap">ANGGOTA TETAP (BULANAN)</option>
-                    <option value="PON">WARGA PON (HARIAN/BAKAR)</option>
-                </select>
+        <!-- CORE FORM ENTRY (Pusat Kendali Administrasi) -->
+        <div class="lg:col-span-8 bg-white border border-slate-200/60 shadow-xl rounded-[2.5rem] p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-100 pb-4">
+                <h2 class="text-base font-black text-slate-800 uppercase tracking-tight">Pencatatan Keuangan Iuran</h2>
+                <p class="text-xs text-slate-400 font-medium">Formulir Resmi Entri Pembayaran Manajemen TUNTAS</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Firebase Key Warga</label>
-                    <input type="text" id="inWargaKey" placeholder="Contoh: -Nxxxxxx" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Nama Warga</label>
-                    <input type="text" id="inNamaWarga" placeholder="Nama Lengkap" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
-                </div>
-            </div>
-
-            <div id="wrapperBulanTetap">
-                <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Iuran Untuk Bulan</label>
-                <select id="selPilihanBulan" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
-                    <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option>
-                    <option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option>
-                    <option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option>
-                    <option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
-                </select>
-            </div>
-
-            <div id="wrapperHariPon" class="hidden grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Hari Pembakaran</label>
-                    <select id="selHariBakar" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
-                        <option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option>
-                        <option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option>
+            <form id="formInputIuranAdmin" onsubmit="eksekusiFormAdmin(event)" class="space-y-5">
+                <!-- Dropdown Selector Kategori Akun -->
+                <div class="space-y-1.5">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Pilih Klasifikasi Anggota</label>
+                    <select id="selTipeUser" onchange="aturFormBerdasarkanTipe()" class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm">
+                        <option value="Anggota Tetap">ANGGOTA TETAP (IURAN BULANAN)</option>
+                        <option value="PON">WARGA PON (PEMBAKARAN SAMPAH HARIAN)</option>
                     </select>
                 </div>
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Tanggal Pembakaran</label>
-                    <input type="text" id="inTanggalBakar" placeholder="Contoh: 10 Juli 2026" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all">
-                </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Nominal Uang (Rp)</label>
-                    <input type="number" id="inNominalInput" placeholder="40000" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
+                <!-- Input Induk Identitas -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Firebase UID Warga</label>
+                        <input type="text" id="inWargaKey" placeholder="Contoh: -N12jHk..." class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm" required>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Nama Lengkap Warga</label>
+                        <input type="text" id="inNamaWarga" placeholder="Masukkan nama warga" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm" required>
+                    </div>
                 </div>
-                <div>
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider pl-1 block mb-1">Nama Admin / Petugas</label>
-                    <input type="text" id="inNamaAdmin" value="APRIYANTO" class="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl px-3 py-3 outline-none focus:border-emerald-600 focus:bg-white transition-all" required>
-                </div>
-            </div>
 
-            <div class="pt-3">
-                <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-800 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider shadow-md active:scale-[0.98] transition-transform">
-                    Simpan & Terbitkan Kuitansi
-                </button>
-            </div>
-        </form>
+                <!-- FORM KONDISIONAL AREA: ANGGOTA TETAP -->
+                <div id="wrapperBulanTetap" class="space-y-1.5">
+                    <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Periode Iuran Sampah</label>
+                    <select id="selPilihanBulan" class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm">
+                        <option value="Januari">Januari</option><option value="Februari">Februari</option><option value="Maret">Maret</option>
+                        <option value="April">April</option><option value="Mei">Mei</option><option value="Juni">Juni</option>
+                        <option value="Juli">Juli</option><option value="Agustus">Agustus</option><option value="September">September</option>
+                        <option value="Oktober">Oktober</option><option value="November">November</option><option value="Desember">Desember</option>
+                    </select>
+                </div>
+
+                <!-- FORM KONDISIONAL AREA: WARGA PON -->
+                <div id="wrapperHariPon" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Hari Pembakaran</label>
+                        <select id="selHariBakar" class="w-full bg-slate-50 border border-slate-200 text-slate-800 font-bold text-xs rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm">
+                            <option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option>
+                            <option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Tanggal Pembakaran</label>
+                        <input type="text" id="inTanggalBakar" placeholder="Contoh: 10 Juli 2026" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Set Nominal Transaksi & Autentikasi Pengurus -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Nominal Uang Masuk (IDR)</label>
+                        <input type="number" id="inNominalInput" placeholder="40000" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm" required>
+                    </div>
+                    <div class="space-y-1.5">
+                        <label class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pl-1">Nama Pengurus/Petugas</label>
+                        <input type="text" id="inNamaAdmin" value="APRIYANTO" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs font-bold rounded-xl px-4 py-3.5 outline-none focus:border-emerald-600 focus:bg-white transition-all shadow-sm" required>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white py-4 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-700/10 active:scale-[0.99] transition-all">
+                        Simpan & Terbitkan Kuitansi Digital
+                    </button>
+                </div>
+            </form>
+        </div>
+
     </div>
 
+    <!-- Load Logic JavaScript Core Panel Admin -->
     <script src="admin.js"></script>
     <script>
         function aturFormBerdasarkanTipe() {
@@ -110,7 +144,6 @@
             const opsi = { year: 'numeric', month: 'long', day: 'numeric' };
             const tanggalHariIniFormatted = d.toLocaleDateString('id-ID', opsi);
 
-            // Bungkus data dom input ke dalam satu kesatuan Object Parameter
             const dataForm = {
                 wargaKey: document.getElementById('inWargaKey').value.trim(),
                 namaWarga: document.getElementById('inNamaWarga').value.trim(),
@@ -119,17 +152,15 @@
                 namaAdminLogin: document.getElementById('inNamaAdmin').value.trim(),
                 tanggalHariIni: tanggalHariIniFormatted,
                 
-                // Parameter Kondisional
                 pilihanBulan: document.getElementById('selPilihanBulan').value,
                 hariPembakaran: document.getElementById('selHariBakar').value,
                 tanggalBakar: document.getElementById('inTanggalBakar').value.trim()
             };
 
-            // Lempar data ke fungsi core simpanIuranOlehAdmin() yang ada di file admin.js
             if(typeof simpanIuranOlehAdmin === "function") {
                 simpanIuranOlehAdmin(dataForm);
             } else {
-                alert("Fungsi simpanIuranOlehAdmin() pada file admin.js belum termuat sempurna!");
+                alert("Fungsi simpanIuranOlehAdmin() gagal terpanggil!");
             }
         }
     </script>
