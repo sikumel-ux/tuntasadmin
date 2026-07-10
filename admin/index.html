@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TUNTAS Admin - Dashboard Pengurus RT 04</title>
+    <!-- Tailwind & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body class="antialiased min-h-screen text-slate-200">
+
+    <!-- Top Navbar -->
+    <header class="border-b border-zinc-800/60 sticky top-0 z-40 backdrop-blur-md bg-[#1A1714]/90 px-4 py-4 sm:px-6">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-emerald-600 rounded-lg flex items-center justify-center font-black text-white text-sm shadow-sm">T</div>
+                <div>
+                    <h1 class="text-sm font-black tracking-tight text-white uppercase">TUNTAS Admin</h1>
+                    <p class="text-[9px] font-bold text-emerald-500 uppercase tracking-widest">Management System RT 04</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="namaAdmin" class="text-xs font-bold text-slate-400 hidden sm:inline">Admin Pengurus</span>
+                <button onclick="prosesLogoutAdmin()" class="bg-zinc-800 hover:bg-zinc-700 text-slate-300 text-[10px] font-black uppercase tracking-wider px-3 py-2 rounded-xl transition-colors border border-zinc-700/50">
+                    <i class="fa-solid fa-right-from-bracket mr-1"></i> Keluar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- KARTU WIDGET RINGKASAN DATA -->
+        <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-[#221E1A] border border-zinc-800 rounded-2xl p-4 space-y-1">
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Total Kas Masuk</span>
+                <h3 id="widgetTotalKas" class="text-lg sm:text-xl font-black text-emerald-400">Rp 0</h3>
+            </div>
+            <div class="bg-[#221E1A] border border-zinc-800 rounded-2xl p-4 space-y-1">
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Lunas Bulan Ini</span>
+                <h3 id="widgetWargaLunas" class="text-lg sm:text-xl font-black text-white">0 <span class="text-xs text-slate-500 font-bold">Warga</span></h3>
+            </div>
+            <div class="bg-[#221E1A] border border-zinc-800 rounded-2xl p-4 space-y-1">
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Total Anggota Tetap</span>
+                <h3 id="widgetTotalTetap" class="text-lg sm:text-xl font-black text-slate-300">0 <span class="text-xs text-slate-500 font-bold">Jiwa</span></h3>
+            </div>
+            <div class="bg-[#221E1A] border border-zinc-800 rounded-2xl p-4 space-y-1">
+                <span class="text-[9px] font-black text-slate-500 uppercase tracking-wider block">Total Sektor PON</span>
+                <h3 id="widgetTotalPon" class="text-lg sm:text-xl font-black text-teal-400">0 <span class="text-xs text-slate-500 font-bold">User</span></h3>
+            </div>
+        </section>
+
+        <!-- LAYOUT UTAMA: FORM INPUT & DAFTAR TRANSAKSI -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- LEFT COLUMN: FORM INPUT IURAN BARU -->
+            <div class="space-y-6 lg:col-span-1">
+                <div class="bg-[#221E1A] border border-zinc-800 rounded-[2rem] p-5 space-y-4 shadow-sm">
+                    <div class="border-b border-zinc-800 pb-3">
+                        <h2 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-square-plus text-emerald-500"></i> Input Iuran Warga
+                        </h2>
+                    </div>
+                    
+                    <form id="formInputIuran" class="space-y-4 text-xs">
+                        <!-- Pilih Warga -->
+                        <div>
+                            <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1.5 pl-1">Nama Warga RT 04</label>
+                            <select id="inputPilihWarga" class="w-full bg-zinc-900 border border-zinc-800 text-slate-200 rounded-xl py-3 px-3 font-bold focus:border-emerald-600 outline-none transition-all" required>
+                                <option value="" disabled selected>-- Pilih Anggota Warga --</option>
+                            </select>
+                        </div>
+
+                        <!-- Periode / Skenario Sektor -->
+                        <div id="rowFormBulan">
+                            <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1.5 pl-1">Periode Bulan (Khusus Anggota Tetap)</label>
+                            <select id="inputBulanIuran" class="w-full bg-zinc-900 border border-zinc-800 text-slate-200 rounded-xl py-3 px-3 font-bold focus:border-emerald-600 outline-none transition-all">
+                                <option value="Januari">Januari</option>
+                                <option value="Februari">Februari</option>
+                                <option value="Maret">Maret</option>
+                                <option value="April">April</option>
+                                <option value="Mei">Mei</option>
+                                <option value="Juni" selected>Juni</option>
+                                <option value="Juli">Juli</option>
+                                <option value="Agustus">Agustus</option>
+                                <option value="September">September</option>
+                                <option value="Oktober">Oktober</option>
+                                <option value="November">November</option>
+                                <option value="Desember">Desember</option>
+                            </select>
+                        </div>
+
+                        <!-- Nominal Kas -->
+                        <div>
+                            <label class="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1.5 pl-1">Nominal Pembayaran (Rp)</label>
+                            <input type="number" id="inputNominalIuran" placeholder="Contoh: 40000" class="w-full bg-zinc-900 border border-zinc-800 text-slate-200 placeholder-zinc-600 rounded-xl py-3 px-4 font-bold focus:border-emerald-600 outline-none transition-all" required>
+                        </div>
+
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3.5 rounded-xl font-black uppercase tracking-wider shadow-md transition-colors mt-2">
+                            Simpan & Terbitkan Kuitansi
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: TABEL RIWAYAT KUITANSI TERBARU -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-[#221E1A] border border-zinc-800 rounded-[2rem] p-5 space-y-4 shadow-sm">
+                    <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                        <h2 class="text-sm font-black text-white uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-emerald-500"></i> Riwayat Pembayaran Resmi
+                        </h2>
+                        <span class="text-[9px] bg-zinc-800 border border-zinc-700 text-slate-400 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">Realtime DB</span>
+                    </div>
+
+                    <!-- Responsive Table Container -->
+                    <div class="overflow-x-auto w-full">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-zinc-800 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+                                    <th class="py-3 px-2">Warga / Sektor</th>
+                                    <th class="py-3 px-2">Periode</th>
+                                    <th class="py-3 px-2">Nominal</th>
+                                    <th class="py-3 px-2 text-center">Aksi Dokumen</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelRiwayatIuran" class="divide-y divide-zinc-800/50 font-semibold text-slate-300">
+                                <!-- Data Dimuat Lewat JS -->
+                                <tr>
+                                    <td colspan="4" class="py-8 text-center text-slate-600 font-bold uppercase tracking-widest animate-pulse">Memasang Koneksi Database...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Notif Toast System -->
+    <div id="toastNotification" class="hidden fixed bottom-5 right-5 z-50 bg-emerald-600 text-white font-black uppercase tracking-wider text-[10px] px-5 py-3 rounded-xl border border-emerald-500 shadow-xl flex items-center gap-2">
+        <i class="fa-solid fa-circle-check"></i> <span id="toastText">Berhasil memperbarui data</span>
+    </div>
+
+    <!-- Script Admin -->
+    <script src="dashboard.js"></script>
+</body>
+</html>
