@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Kuitansi Digital - MHK</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --primary-light: #2b6cb0;
+            --secondary: #2d3748;
+            --accent: #2f855a;
+            --border: #cbd5e0;
+            --bg-light: #f7fafc;
+        }
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background-color: #ebf8ff;
+            margin: 0;
+            padding: 30px 15px;
+            color: #2d3748;
+        }
+        
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            font-size: 22pt;
+            margin-bottom: 5px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 25px;
+            font-size: 11pt;
+        }
+        
+        /* Form Card */
+        .form-card {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 35px;
+            border-top: 5px solid var(--primary-light);
+        }
+        
+        .form-grid {
+            display: table;
+            width: 100%;
+        }
+        
+        .form-row {
+            display: table-row;
+        }
+        
+        .form-group {
+            display: table-cell;
+            padding: 8px;
+            vertical-align: top;
+        }
+        
+        .w-50 {
+            width: 50%;
+        }
+        
+        .w-100 {
+            width: 100%;
+            display: block;
+        }
+        
+        label {
+            font-size: 9pt;
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #4a5568;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 10pt;
+            color: #2d3748;
+            transition: border-color 0.2s;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: var(--primary-light);
+            outline: none;
+        }
+        
+        .button-area {
+            text-align: center;
+            margin-top: 15px;
+            padding: 0 8px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 11pt;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 3px 6px rgba(47, 133, 90, 0.2);
+            transition: background 0.2s, transform 0.1s;
+        }
+        
+        button:hover {
+            background-color: #276749;
+        }
+        
+        /* Receipt Preview / Printable Area */
+        .receipt-box {
+            background: white;
+            border: 1px solid #1a202c;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            border-radius: 4px;
+        }
+        
+        /* Double line top border for classic look */
+        .receipt-inner {
+            border: 1px solid #e2e8f0;
+            padding: 25px;
+            background: #fff;
+        }
+        
+        .receipt-header {
+            display: table;
+            width: 100%;
+            border-bottom: 3px double #1a202c;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .header-left {
+            display: table-cell;
+            vertical-align: middle;
+            width: 60%;
+        }
+        
+        .header-right {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: right;
+            width: 40%;
+        }
+        
+        /* Logo Section */
+        .logo-container {
+            display: table;
+            margin-bottom: 8px;
+        }
+        
+        .logo-img-wrapper {
+            display: table-cell;
+            vertical-align: middle;
+            padding-right: 12px;
+        }
+        
+        .logo-fallback {
+            width: 65px;
+            height: 65px;
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            font-size: 18pt;
+            text-align: center;
+            line-height: 65px;
+            border-radius: 8px;
+            letter-spacing: 1px;
+        }
+        
+        .logo-text {
+            display: table-cell;
+            vertical-align: middle;
+        }
+        
+        .company-name {
+            font-size: 15pt;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: 0.5px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+        
+        .company-address {
+            font-size: 8.5pt;
+            color: #4a5568;
+            line-height: 1.4;
+            margin-top: 3px;
+            max-width: 320px;
+        }
+        
+        .receipt-title {
+            font-size: 24pt;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: var(--primary);
+            margin: 0;
+        }
+        
+        .receipt-no {
+            font-size: 10pt;
+            color: #4a5568;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+        
+        /* Rows styling */
+        .receipt-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 18px;
+        }
+        
+        .receipt-label {
+            display: table-cell;
+            width: 180px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 8.5pt;
+            color: #4a5568;
+            vertical-align: top;
+            padding-top: 4px;
+        }
+        
+        .receipt-separator {
+            display: table-cell;
+            width: 20px;
+            vertical-align: top;
+            padding-top: 4px;
+            font-weight: bold;
+        }
+        
+        .receipt-value {
+            display: table-cell;
+            border-bottom: 1px dotted #718096;
+            font-size: 11pt;
+            color: #1a202c;
+            padding-bottom: 4px;
+            vertical-align: bottom;
+        }
+        
+        .receipt-value.terbilang-box {
+            font-style: italic;
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            font-weight: bold;
+            color: var(--primary);
+            border-radius: 4px;
+        }
+        
+        /* Footer area */
+        .receipt-footer {
+            margin-top: 40px;
+            display: table;
+            width: 100%;
+        }
+        
+        .footer-left {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+        }
+        
+        .footer-right {
+            display: table-cell;
+            width: 50%;
+            vertical-align: bottom;
+            text-align: right;
+        }
+        
+        .amount-badge {
+            font-size: 15pt;
+            font-weight: bold;
+            border: 2px solid var(--primary);
+            padding: 12px 25px;
+            background: #edf2f7;
+            display: inline-block;
+            border-radius: 4px;
+            color: var(--primary);
+        }
+        
+        .signature-container {
+            display: inline-block;
+            text-align: center;
+            width: 220px;
+        }
+        
+        .signature-date {
+            font-size: 9.5pt;
+            color: #4a5568;
+            margin-bottom: 50px;
+        }
+        
+        .signature-name {
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 11pt;
+            color: #1a202c;
+            text-transform: uppercase;
+        }
+        
+        .signature-title {
+            font-size: 8.5pt;
+            color: #718096;
+            margin-top: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-grid, .form-row {
+                display: block;
+            }
+            .form-group {
+                display: block;
+                width: 100% !important;
+            }
+        }
+
+        /* Print CSS */
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 15mm;
+            }
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .form-card, h1, .subtitle, .button-area {
+                display: none;
+            }
+            .container {
+                max-width: 100%;
+                margin: 0;
+            }
+            .receipt-box {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+            }
+            .receipt-inner {
+                border: 2px solid #000;
+            }
+            .amount-badge {
+                background-color: #f0f4f8 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .receipt-value.terbilang-box {
+                background-color: #f7fafc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Generator Kuitansi Digital</h1>
+    <div class="subtitle">Buat kuitansi profesional dengan logo & alamat instan. Siap cetak ke PDF / Printer.</div>
+    
+    <!-- Form Input Pembuat Kuitansi -->
+    <div class="form-card">
+        <div class="form-grid">
+            <div class="form-row">
+                <div class="form-group w-50">
+                    <label for="input-nomor">Nomor Kuitansi</label>
+                    <input type="text" id="input-nomor" value="No. 082/MHK-KUI/VII/2026" oninput="updateReceipt()">
+                </div>
+                <div class="form-group w-50">
+                    <label for="input-kota">Tempat & Tanggal</label>
+                    <input type="text" id="input-kota" value="Yogyakarta, 15 Juli 2026" oninput="updateReceipt()">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group w-50">
+                    <label for="input-nama-perusahaan">Nama Perusahaan / Unit</label>
+                    <input type="text" id="input-nama-perusahaan" value="MHK Group Indonesia" oninput="updateReceipt()">
+                </div>
+                <div class="form-group w-50">
+                    <label for="input-alamat">Alamat Perusahaan</label>
+                    <input type="text" id="input-alamat" value="Jl. Ringroad Utara No. 10, Sleman, DI Yogyakarta" oninput="updateReceipt()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group w-100">
+                    <label for="input-nama">Telah Diterima Dari</label>
+                    <input type="text" id="input-nama" placeholder="Contoh: PT. Maju Jaya Sentosa" oninput="updateReceipt()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group w-50">
+                    <label for="input-jumlah">Jumlah Nominal (Rupiah)</label>
+                    <input type="number" id="input-jumlah" placeholder="Contoh: 7500000" oninput="updateReceipt()">
+                </div>
+                <div class="form-group w-50">
+                    <label for="input-penerima">Nama Penerima / Bendahara</label>
+                    <input type="text" id="input-penerima" placeholder="Contoh: Ahmad Budiman, S.E." oninput="updateReceipt()">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group w-100">
+                    <label for="input-untuk">Untuk Pembayaran</label>
+                    <textarea id="input-untuk" rows="2" placeholder="Contoh: Pelunasan biaya pembuatan website kuitansi generator dan maintenance server 1 tahun"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="button-area">
+            <button onclick="window.print()">Cetak Kuitansi / Simpan PDF</button>
+        </div>
+    </div>
+
+    <!-- Tampilan Preview Kuitansi (Khas Indonesia) -->
+    <div class="receipt-box">
+        <div class="receipt-inner">
+            <div class="receipt-header">
+                <div class="header-left">
+                    <div class="logo-container">
+                        <div class="logo-img-wrapper">
+                            <!-- Mencoba memuat mhk.png, jika gagal/tidak ada otomatis menampilkan inisial bergaya profesional -->
+                            <img src="mhk.png" alt="MHK Logo" style="max-height: 65px; max-width: 150px; display: block;" onerror="this.style.display='none'; document.getElementById('logo-placeholder').style.display='block';">
+                            <div id="logo-placeholder" class="logo-fallback" style="display: none;">MHK</div>
+                        </div>
+                        <div class="logo-text">
+                            <div class="company-name" id="rec-perusahaan">MHK Group Indonesia</div>
+                            <div class="company-address" id="rec-alamat">Jl. Ringroad Utara No. 10, Sleman, DI Yogyakarta</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="receipt-title">KUITANSI</div>
+                    <div class="receipt-no">No. <span id="rec-nomor">082/MHK-KUI/VII/2026</span></div>
+                </div>
+            </div>
+
+            <div class="receipt-row">
+                <div class="receipt-label">Telah diterima dari</div>
+                <div class="receipt-separator">:</div>
+                <div class="receipt-value" id="rec-nama">-</div>
+            </div>
+
+            <div class="receipt-row">
+                <div class="receipt-label">Uang Sejumlah</div>
+                <div class="receipt-separator">:</div>
+                <div class="receipt-value terbilang-box" id="rec-terbilang">Rupiah</div>
+            </div>
+
+            <div class="receipt-row">
+                <div class="receipt-label">Untuk Pembayaran</div>
+                <div class="receipt-separator">:</div>
+                <div class="receipt-value" id="rec-untuk">-</div>
+            </div>
+
+            <div class="receipt-footer">
+                <div class="footer-left">
+                    <div class="amount-badge">
+                        Rp <span id="rec-jumlah">0</span>,-
+                    </div>
+                </div>
+                <div class="footer-right">
+                    <div class="signature-container">
+                        <div class="signature-date" id="rec-kota">Yogyakarta, 15 Juli 2026</div>
+                        <div class="signature-name" id="rec-penerima">-</div>
+                        <div class="signature-title">Penerima</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Algoritma Terbilang Bahasa Indonesia
+    function kekata(nilai) {
+        let angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
+        let temp = "";
+        
+        if (nilai < 12) {
+            temp = " " + angka[nilai];
+        } else if (nilai < 20) {
+            temp = kekata(nilai - 10) + " Belas";
+        } else if (nilai < 100) {
+            temp = kekata(Math.floor(nilai / 10)) + " Puluh" + kekata(nilai % 10);
+        } else if (nilai < 200) {
+            temp = " Seratus" + kekata(nilai - 100);
+        } else if (nilai < 1000) {
+            temp = kekata(Math.floor(nilai / 100)) + " Ratus" + kekata(nilai % 100);
+        } else if (nilai < 2000) {
+            temp = " Seribu" + kekata(nilai - 1000);
+        } else if (nilai < 1000000) {
+            temp = kekata(Math.floor(nilai / 1000)) + " Ribu" + kekata(nilai % 1000);
+        } else if (nilai < 1000000000) {
+            temp = kekata(Math.floor(nilai / 1000000)) + " Juta" + kekata(nilai % 1000000);
+        } else if (nilai < 1000000000000) {
+            temp = kekata(Math.floor(nilai / 1000000000)) + " Milyar" + kekata(nilai % 1000000000);
+        }
+        return temp;
+    }
+
+    function formatRupiah(angka) {
+        return new Intl.NumberFormat('id-ID').format(angka);
+    }
+
+    function updateReceipt() {
+        const nomor = document.getElementById('input-nomor').value || '-';
+        const kota = document.getElementById('input-kota').value || '-';
+        const perusahaan = document.getElementById('input-nama-perusahaan').value || '-';
+        const alamat = document.getElementById('input-alamat').value || '-';
+        const nama = document.getElementById('input-nama').value || '-';
+        const jumlahRaw = document.getElementById('input-jumlah').value;
+        const penerima = document.getElementById('input-penerima').value || '-';
+        const untuk = document.getElementById('input-untuk').value || '-';
+
+        let terbilangText = "Rupiah";
+        let jumlahFormatted = "0";
+
+        if (jumlahRaw && jumlahRaw > 0) {
+            jumlahFormatted = formatRupiah(jumlahRaw);
+            terbilangText = (kekata(parseInt(jumlahRaw)) + " Rupiah").trim().replace(/\s+/g, ' ');
+        }
+
+        // Live Update Element Kuitansi
+        document.getElementById('rec-nomor').innerText = nomor;
+        document.getElementById('rec-kota').innerText = kota;
+        document.getElementById('rec-perusahaan').innerText = perusahaan;
+        document.getElementById('rec-alamat').innerText = alamat;
+        document.getElementById('rec-nama').innerText = nama;
+        document.getElementById('rec-jumlah').innerText = jumlahFormatted;
+        document.getElementById('rec-terbilang').innerText = terbilangText;
+        document.getElementById('rec-untuk').innerText = untuk;
+        document.getElementById('rec-penerima').innerText = penerima;
+    }
+
+    // Attach listener ke textarea secara manual karena oninput di html kadang butuh trigger instan
+    document.getElementById('input-untuk').addEventListener('input', updateReceipt);
+    
+    // Inisialisasi awal
+    updateReceipt();
+</script>
+</body>
+</html>
