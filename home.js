@@ -1,40 +1,46 @@
-// ==========================================
-// 1. KONFIGURASI DATABASE FIREBASE
-// ==========================================
-// Pastikan URL ini persis seperti yang tertera di Firebase Console Anda
+// =========================================================================
+// 1. KONFIGURASI UTAMA DATABASE FIREBASE
+// =========================================================================
+// URL Firebase Realtime Database sesuai dengan region asia-southeast1 proyek tuntas-04
 const DB_URL = "https://tuntas-04-default-rtdb.asia-southeast1.firebasedatabase.app";
 
-// Variabel global untuk menyimpan data warga di memori aplikasi
+// Variabel penampung data warga secara global di memori aplikasi
 let MEMORI_WARGA_GLOBAL = {};
 
-// ==========================================
-// 2. FUNGSI UTAMA: MEMUAT DATA WARGA
-// ==========================================
+// =========================================================================
+// 2. FUNGSI UTAMA: MEMUAT DATA WARGA DARI FIREBASE
+// =========================================================================
 async function muatSistemWarga() {
     try {
-        // Mengambil data dari node "warga_rt04"
-        const res = await fetch(`${DB_URL}/warga_rt04.json`);
+        // Melakukan request GET ke node warga_rt04.json dengan header standar
+        const res = await fetch(`${DB_URL}/warga_rt04.json`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
         
-        // Cek jika ada masalah koneksi / HTTP error
+        // Cek jika status HTTP bukan 200-299 (misal 404 atau 500)
         if (!res.ok) {
-            throw new Error(`HTTP Error! Status: ${res.status}`);
+            throw new Error(`Respon server bermasalah (HTTP ${res.status})`);
         }
         
         const data = await res.json();
         
-        // Simpan ke memori global (jika data null, jadikan objek kosong)
+        // Masukkan ke memori global, jika null pasang objek kosong agar tidak crash
         MEMORI_WARGA_GLOBAL = data || {}; 
         
         const list = document.getElementById('listWarga');
         if (!list) return;
         
-        list.innerHTML = ""; // Bersihkan kontainer sebelum memuat ulang
+        // Bersihkan area list sebelum data baru dimasukkan
+        list.innerHTML = ""; 
         
-        // Panggil fungsi pembantu jika ada (jalankan jika fungsi tersebut didefinisikan)
+        // Cek pengaman jika fungsi dropdown opsional Anda ada di file lain
         if (typeof saringDropdownWargaBerdasarkanTipe === "function") saringDropdownWargaBerdasarkanTipe();
         if (typeof perbaruiDropdownSampahOperasional === "function") perbaruiDropdownSampahOperasional();
 
-        // Jika data dari Firebase ternyata kosong/belum ada sama sekali
+        // Jika data di Firebase kosong/belum ada isinya sama sekali
         if (!data || Object.keys(data).length === 0) {
             list.innerHTML = `
                 <div class="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-wide">
@@ -43,7 +49,7 @@ async function muatSistemWarga() {
             return;
         }
         
-        // Looping dan render data warga ke dalam HTML
+        // Looping data warga dan masukkan ke struktur HTML secara dinamis
         Object.keys(data).forEach(key => {
             const w = data[key];
             const namaWarga = w.nama ? w.nama.toUpperCase() : "TANPA NAMA";
@@ -74,25 +80,30 @@ async function muatSistemWarga() {
             `);
         });
     } catch (e) { 
-        // Log error asli ke console browser untuk mempermudah debugging
-        console.error("Detail Error Firebase:", e);
+        // Mencetak log lengkap di console F12 browser
+        console.error("Detail Eror Sistem:", e);
         
         const list = document.getElementById('listWarga');
         if (list) {
             list.innerHTML = `
-                <div class="p-4 text-center text-xs text-rose-600 font-bold uppercase tracking-wide">
-                    Gagal memuat koneksi database!<br>
-                    <span class="text-[10px] text-slate-400 font-normal lowercase block mt-1">
-                        Kemungkinan Firebase Rules masih dikunci atau koneksi internet bermasalah.
+                <div class="p-5 text-center bg-rose-50 rounded-xl border border-rose-100">
+                    <p class="text-xs text-rose-700 font-black uppercase tracking-wide flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-circle-exclamation"></i> Gagal memuat koneksi database!
+                    </p>
+                    <span class="text-[10px] text-slate-500 font-mono block mt-2 p-1.5 bg-white rounded border border-slate-200 text-left overflow-x-auto break-all">
+                        <strong>Log Eror:</strong> ${e.message}
+                    </span>
+                    <span class="text-[9px] text-slate-400 block mt-2">
+                        Solusi: Cek koneksi internet atau buka via server lokal (Live Server).
                     </span>
                 </div>`;
         }
     }
 }
 
-// ==========================================
-// 3. JALANKAN FUNGSI SAAT HALAMAN SELESAI DIMUAT
-// ==========================================
+// =========================================================================
+// 3. EVENT LISTENER: JALANKAN OTOMATIS SAAT HALAMAN SELESAI DI-LOAD
+// =========================================================================
 document.addEventListener("DOMContentLoaded", () => {
     muatSistemWarga();
 });
