@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TUNTAS - Admin Panel</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen pb-32">
+
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="flex flex-col items-center gap-2">
+        <i class="fa-solid fa-spinner animate-spin text-xl"></i>
+        <span>Menghubungkan Database...</span>
+    </div>
+</div>
+
+<div id="notificationAlert" class="fixed top-4 left-1/2 -translate-x-1/2 w-11/12 max-w-sm z-[99999] p-4 rounded-2xl shadow-lg border text-xs font-black uppercase tracking-wide flex items-center gap-2.5 transition-all duration-300 hidden">
+    <i id="notifIcon" class="fa-solid text-base"></i>
+    <span id="notifText" class="flex-1"></span>
+</div>
+
+<div id="mKonfirmasiHapus" class="modal" style="z-index: 250;">
+    <div class="modal-content space-y-4 text-center">
+        <div class="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-100">
+            <i class="fa-solid fa-trash-can text-base"></i>
+        </div>
+        <div class="space-y-1">
+            <h3 class="text-xs font-black text-slate-800 uppercase tracking-wide">Konfirmasi Hapus</h3>
+            <p id="textKonfirmasiHapus" class="text-[11px] font-semibold text-slate-500 leading-relaxed">Apakah kamu yakin ingin menghapus data ini secara permanen?</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-2">
+            <button id="btnBatalHapus" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 rounded-xl text-[10px] font-black uppercase transition-colors">Batal</button>
+            <button id="btnYakinHapus" class="w-full bg-rose-600 hover:bg-rose-700 text-white py-2.5 rounded-xl text-[10px] font-black uppercase transition-colors shadow-sm">Ya, Hapus</button>
+        </div>
+    </div>
+</div>
+
+<header class="bg-white border-b border-slate-100 p-4 sticky top-0 z-40 flex justify-between items-center shadow-sm">
+    <div class="flex items-center gap-3">
+        <img src="logo.png" alt="Logo" class="w-9 h-9 object-contain rounded-xl">
+        <div>
+            <h1 class="text-sm font-extrabold text-emerald-950 tracking-tight leading-none">TUNTAS</h1>
+            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">Turun Tangan Atasi Sampah</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-1.5">
+        <button onclick="switchTab('scr-modul')" id="btn-top-modul" class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center hover:bg-emerald-100 active:scale-95 transition-all">
+            <i class="fa-solid fa-cubes text-xs"></i>
+        </button>
+        <button onclick="sinkronUlangData()" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-500 flex items-center justify-center hover:bg-slate-100 active:scale-95 transition-all">
+            <i class="fa-solid fa-rotate text-xs"></i>
+        </button>
+        <button onclick="logoutAdmin()" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 active:scale-95 transition-all">
+            <i class="fa-solid fa-power-off text-xs"></i>
+        </button>
+    </div>
+</header>
+
+<div id="scr-kas" class="tab-content active p-4 space-y-4 animate-fade-in">
+    <div class="bg-gradient-to-br from-emerald-950 via-emerald-900 to-teal-950 text-white p-5 rounded-[2.5rem] shadow-xl space-y-4 border border-emerald-800/40">
+        <div>
+            <p class="text-[8px] text-emerald-400 font-black uppercase tracking-widest">Saldo Keseluruhan RT 04</p>
+            <h2 id="totalSaldoKeseluruhan" class="text-3xl font-extrabold tracking-tight mt-0.5">Rp 0</h2>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 pt-3 border-t border-emerald-800/60">
+            <div class="bg-emerald-900/40 p-2.5 rounded-xl border border-emerald-700/30 text-center">
+                <p class="text-[7px] text-emerald-300 font-black uppercase tracking-wide">Saldo Filter</p>
+                <h3 id="totalSaldo" class="text-xs font-extrabold text-white mt-0.5">0</h3>
+            </div>
+            <div class="bg-emerald-900/40 p-2.5 rounded-xl border border-emerald-700/30 text-center">
+                <p class="text-[7px] text-emerald-300 font-black uppercase tracking-wide">Pemasukan</p>
+                <h3 id="textMasuk" class="text-xs font-extrabold text-white mt-0.5">0</h3>
+            </div>
+            <div class="bg-emerald-900/40 p-2.5 rounded-xl border border-emerald-700/30 text-center">
+                <p class="text-[7px] text-emerald-300 font-black uppercase tracking-wide">Pengeluaran</p>
+                <h3 id="textKeluar" class="text-xs font-extrabold text-white mt-0.5">0</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-white border border-slate-100 p-4 rounded-2xl shadow-sm space-y-2">
+        <p class="text-[9px] font-black text-slate-400 uppercase tracking-wide px-1">Filter Rentang Tanggal</p>
+        <div class="grid grid-cols-2 gap-2">
+            <input type="date" id="filterMulai" class="modern-in !p-2 text-center" onchange="muatSistemKas()">
+            <input type="date" id="filterSelesai" class="modern-in !p-2 text-center" onchange="muatSistemKas()">
+        </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-2">
+        <button onclick="openModal('mInputKas')" class="bg-emerald-900 text-white py-3 px-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-wallet text-xs"></i> Input Kas</button>
+        <button onclick="openModal('mInputIuran')" class="bg-teal-800 text-white py-3 px-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-receipt text-xs"></i> Input Iuran</button>
+        <button onclick="unduhLaporanPDF()" class="bg-slate-800 text-white py-3 px-1 rounded-xl text-[9px] font-black uppercase tracking-wider flex flex-col items-center justify-center gap-1"><i class="fa-solid fa-file-pdf text-xs"></i> Unduh PDF</button>
+    </div>
+
+    <div id="boxKuitansiLink" class="bg-emerald-50 border border-emerald-200 p-4 rounded-2xl space-y-2 hidden">
+        <p id="textJenisKuitansiHeader" class="text-[10px] font-black text-emerald-800 uppercase tracking-wider">Kuitansi Digital Siap!</p>
+        <p id="textKodeKuitansi" class="text-xs font-mono font-bold text-slate-700 break-all"></p>
+        <div class="flex gap-2 pt-1">
+            <button id="btnSalinKuitansi" class="bg-white border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase flex-1">Salin Link</button>
+            <button id="btnKirimWA" class="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase flex items-center gap-1"><i class="fa-brands fa-whatsapp"></i> Kirim WA</button>
+        </div>
+    </div>
+
+    <div class="space-y-2">
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Histori Transaksi</h3>
+        <div id="listMutasiKasMasyarakat" class="bg-white border border-slate-100 rounded-2xl divide-y divide-slate-100 overflow-y-auto max-h-[260px] shadow-sm"></div>
+    </div>
+</div>
+
+<!-- DATA WARGA TAB -->
+<div id="scr-warga" class="tab-content p-4 space-y-4 animate-fade-in">
+    <div class="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm space-y-4">
+        <h2 class="text-sm font-black text-slate-800 uppercase tracking-wide">Daftarkan Anggota Warga Baru</h2>
+        <form id="formWarga" onsubmit="simpanWarga(event)" class="space-y-2">
+            <select id="addTipe" class="modern-in text-xs" required>
+                <option value="tetap">ANGGOTA TETAP (BULANAN)</option>
+                <option value="pon">ANGGOTA PON (HARIAN)</option>
+            </select>
+            <input type="text" id="addNama" placeholder="Nama Lengkap Warga" class="modern-in text-xs" required>
+            <input type="tel" id="addHp" placeholder="No WhatsApp" class="modern-in text-xs" required>
+            <input type="text" id="addPass" placeholder="Password Login Warga" class="modern-in text-xs" required>
+            <input type="text" id="addBulan" placeholder="Bulan Bergabung (Contoh: Juni 2026)" class="modern-in text-xs" required>
+            <button type="submit" class="w-full bg-emerald-900 text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider">Simpan Akun Warga</button>
+        </form>
+    </div>
+
+    <!-- TAMPILAN DATA WARGA DENGAN TABEL & AKSI -->
+    <div class="space-y-2">
+        <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Daftar Warga Aktif</h3>
+        <div id="listWarga" class="bg-white border border-slate-100 rounded-2xl divide-y divide-slate-100 overflow-hidden shadow-sm text-xs max-h-[350px] overflow-y-auto">
+            <!-- Data Warga akan di-render di sini oleh JavaScript -->
+            <!-- Contoh visual baris data:
+            <div class="p-3.5 flex justify-between items-center hover:bg-slate-50 transition-colors">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-bold text-slate-800">Budi Santoso</span>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 text-[8px] font-black uppercase tracking-wide">Tetap</span>
+                    </div>
+                    <p class="text-[10px] font-semibold text-slate-400">WA: 08123456789 | Pass: 123456</p>
+                    <p class="text-[9px] font-medium text-slate-500">Gabung: Juni 2026</p>
+                </div>
+                <div class="flex gap-1.5">
+                    <button onclick="editWarga('ID_WARGA')" class="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center hover:bg-teal-100 transition-colors"><i class="fa-solid fa-pen-to-square text-[10px]"></i></button>
+                    <button onclick="hapusWarga('ID_WARGA')" class="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center hover:bg-rose-100 transition-colors"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                </div>
+            </div>
+            -->
+        </div>
+    </div>
+</div>
+
+<div id="scr-sampah" class="tab-content p-4 space-y-4 animate-fade-in">
+    <div class="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm space-y-4">
+        <h2 class="text-sm font-black text-slate-800 uppercase tracking-wide">Laporan Sampah Operasional</h2>
+        <form id="formSampah" onsubmit="simpanSampah(event)" class="space-y-4">
+            <input type="date" id="smphTgl" class="modern-in" required>
+            <select id="smphWarga" class="modern-in" required><option value="">-- PILIH NAMA WARGA --</option></select>
+            
+            <div class="space-y-1.5">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wide px-1">Status Operasional</p>
+                <div class="grid grid-cols-3 gap-2">
+                    <div onclick="pilihStatusSampah('diambil')" id="status-diambil" data-status="diambil" class="status-card border border-slate-200 bg-slate-50 p-3 rounded-xl text-center cursor-pointer font-extrabold text-[10px] uppercase flex flex-col items-center gap-1">
+                        <i class="fa-solid fa-trash text-xs"></i> Diambil
+                    </div>
+                    <div onclick="pilihStatusSampah('diantar')" id="status-diantar" data-status="diantar" class="status-card border border-slate-200 bg-slate-50 p-3 rounded-xl text-center cursor-pointer font-extrabold text-[10px] uppercase flex flex-col items-center gap-1">
+                        <i class="fa-solid fa-box text-xs"></i> Diantar
+                    </div>
+                    <div onclick="pilihStatusSampah('kosong')" id="status-kosong" data-status="kosong" class="status-card border border-slate-200 bg-slate-50 p-3 rounded-xl text-center cursor-pointer font-extrabold text-[10px] uppercase flex flex-col items-center gap-1">
+                        <i class="fa-solid fa-circle-xmark text-xs"></i> Kosong
+                    </div>
+                </div>
+                <input type="hidden" id="smphStatus" value="diambil" required>
+            </div>
+            
+            <button type="submit" class="w-full bg-emerald-900 text-white py-4 rounded-xl text-xs font-black uppercase tracking-wide">Simpan Log Sampah</button>
+        </form>
+    </div>
+</div>
+
+<div id="scr-riwayat" class="tab-content p-4 space-y-4 animate-fade-in">
+    <h2 class="text-sm font-black text-slate-800 uppercase tracking-wide px-1">Buku Riwayat Arsip Iuran</h2>
+    <div id="listRiwayatIuranWarga" class="space-y-0.5 overflow-y-auto max-h-[480px] pr-1"></div>
+</div>
+
+<div id="scr-modul" class="tab-content p-4 space-y-6 animate-fade-in">
+    <div class="bg-white border border-slate-100 p-5 rounded-[2rem] shadow-sm space-y-4">
+        <form id="formPass" onsubmit="ubahPasswordAdmin(event)" class="space-y-2">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider px-1">Ganti Password Akun Admin</p>
+            <div class="flex gap-2">
+                <input type="text" id="newPass" placeholder="Password Baru" class="modern-in !p-2.5 text-xs" required>
+                <button type="submit" class="bg-slate-800 text-white px-4 rounded-xl text-[10px] font-black uppercase">Update</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL INPUT KAS DENGAN INPUT KALENDER TERBARU -->
+<div id="mInputKas" class="modal" onclick="if(event.target==this)closeModal('mInputKas')">
+    <div class="modal-content space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-extrabold uppercase text-emerald-900 text-xs">Catat Buku Kas Umum</h3>
+            <button onclick="closeModal('mInputKas')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="formKasUmum" onsubmit="simpanKasUmum(event)" class="space-y-3">
+            <input type="date" id="kasTgl" class="modern-in" required>
+            <select id="kasJenis" class="modern-in"><option value="masuk">Pemasukan Kas</option><option value="keluar">Pengeluaran Kas</option></select>
+            <input type="number" id="kasNominal" placeholder="Nominal" class="modern-in" required>
+            <input type="text" id="kasKet" placeholder="Keterangan Mutasi" class="modern-in" required>
+            <button type="submit" class="w-full bg-emerald-900 text-white py-3 rounded-xl text-xs font-black uppercase">Simpan Mutasi</button>
+        </form>
+    </div>
+</div>
+
+<div id="mInputIuran" class="modal" onclick="if(event.target==this)closeModal('mInputIuran')">
+    <div class="modal-content space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-extrabold uppercase text-emerald-900 text-xs">Penerbitan Iuran Sampah</h3>
+            <button onclick="closeModal('mInputIuran')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="formIuran" onsubmit="simpanIuran(event)" class="space-y-3">
+            <input type="date" id="iuranTgl" class="modern-in" required>
+            
+            <select id="iuranTipeAnggota" class="modern-in" onchange="saringDropdownWargaBerdasarkanTipe()" required>
+                <option value="tetap">ANGGOTA TETAP (BULANAN)</option>
+                <option value="pon">ANGGOTA PON (HARIAN)</option>
+            </select>
+
+            <select id="iuranWarga" class="modern-in" onchange="tanganiPerubahanWarga(this)" required>
+                <option value="">-- PILIH NAMA WARGA --</option>
+            </select>
+            
+            <input type="hidden" id="iuranPon" value="">
+
+            <div id="boxPilihanBulanWrapper" class="space-y-1.5">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-wide px-1">Pilih Periode Bulan (Khusus Tetap)</p>
+                <div class="grid grid-cols-4 gap-1.5 bg-slate-50 p-2.5 rounded-2xl border border-slate-100 text-center">
+                    <div onclick="pilihBalanIuran('JANUARI')" data-month="JANUARI" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">JAN</div>
+                    <div onclick="pilihBalanIuran('FEBRUARI')" data-month="FEBRUARI" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">FEB</div>
+                    <div onclick="pilihBalanIuran('MARET')" data-month="MARET" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">MAR</div>
+                    <div onclick="pilihBalanIuran('APRIL')" data-month="APRIL" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">APR</div>
+                    <div onclick="pilihBalanIuran('MEI')" data-month="MEI" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">MEI</div>
+                    <div onclick="pilihBalanIuran('JUNI')" data-month="JUNI" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">JUN</div>
+                    <div onclick="pilihBalanIuran('JULI')" data-month="JULI" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">JUL</div>
+                    <div onclick="pilihBalanIuran('AGUSTUS')" data-month="AGUSTUS" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">AGS</div>
+                    <div onclick="pilihBalanIuran('SEPTEMBER')" data-month="SEPTEMBER" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">SEP</div>
+                    <div onclick="pilihBalanIuran('OKTOBER')" data-month="OKTOBER" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">OKT</div>
+                    <div onclick="pilihBalanIuran('NOVEMBER')" data-month="NOVEMBER" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">NOV</div>
+                    <div onclick="pilihBalanIuran('DESEMBER')" data-month="DESEMBER" class="month-chip border border-slate-200 bg-white p-1.5 rounded-lg font-bold text-[9px] cursor-pointer transition-all">DES</div>
+                </div>
+                <input type="hidden" id="iuranBulan" value="">
+            </div>
+
+            <input type="number" id="iuranNominal" placeholder="Nominal (Rupiah)" class="modern-in" required>
+            <button type="submit" class="w-full bg-emerald-950 text-white py-3 rounded-xl text-xs font-black uppercase">Proses Kuitansi</button>
+        </form>
+    </div>
+</div>
+
+<!-- MODAL EDIT WARGA BARU -->
+<div id="mEditWarga" class="modal" onclick="if(event.target==this)closeModal('mEditWarga')">
+    <div class="modal-content space-y-4">
+        <div class="flex justify-between items-center border-b pb-2">
+            <h3 class="font-extrabold uppercase text-emerald-900 text-xs">Edit Data Warga</h3>
+            <button onclick="closeModal('mEditWarga')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="formEditWarga" onsubmit="perbaruiWarga(event)" class="space-y-3">
+            <input type="hidden" id="editWargaId">
+            <select id="editTipe" class="modern-in text-xs" required>
+                <option value="tetap">ANGGOTA TETAP (BULANAN)</option>
+                <option value="pon">ANGGOTA PON (HARIAN)</option>
+            </select>
+            <input type="text" id="editNama" placeholder="Nama Lengkap Warga" class="modern-in text-xs" required>
+            <input type="tel" id="editHp" placeholder="No WhatsApp" class="modern-in text-xs" required>
+            <input type="text" id="editPass" placeholder="Password Login Warga" class="modern-in text-xs" required>
+            <input type="text" id="editBulan" placeholder="Bulan Bergabung (Contoh: Juni 2026)" class="modern-in text-xs" required>
+            <button type="submit" class="w-full bg-teal-700 text-white py-3 rounded-xl text-xs font-black uppercase">Simpan Perubahan</button>
+        </form>
+    </div>
+</div>
+
+<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 p-2 flex justify-between items-center shadow-[0_-4px_14px_rgba(0,0,0,0.03)] z-50">
+    <button id="nav-btn-kas" onclick="switchTab('scr-kas')" class="nav-btn active flex flex-col items-center flex-1 text-slate-400 text-[9px] font-bold"><i class="fa-solid fa-wallet text-base mb-0.5"></i>KAS</button>
+    <button id="nav-btn-warga" onclick="switchTab('scr-warga')" class="nav-btn flex flex-col items-center flex-1 text-slate-400 text-[9px] font-bold"><i class="fa-solid fa-user-plus text-base mb-0.5"></i>+WARGA</button>
+    <button onclick="openModal('mInputIuran')" class="flex flex-col items-center flex-1 text-slate-400 text-[9px] font-bold"><i class="fa-solid fa-circle-plus text-base mb-0.5 text-teal-700"></i>+IURAN</button>
+    <button id="nav-btn-sampah" onclick="switchTab('scr-sampah')" class="nav-btn flex flex-col items-center flex-1 text-slate-400 text-[9px] font-bold"><i class="fa-solid fa-truck-garbage text-base mb-0.5"></i>SMPH</button>
+    <button id="nav-btn-riwayat" onclick="switchTab('scr-riwayat')" class="nav-btn flex flex-col items-center flex-1 text-slate-400 text-[9px] font-bold"><i class="fa-solid fa-clock-rotate-left text-base mb-0.5"></i>HISTORI</button>
+</nav>
+
+<script src="script.js"></script>
+</body>
+</html>
