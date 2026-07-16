@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Kuitansi Digital - MHK</title>
+    <title>Premium Kuitansi Generator - MHK</title>
     <style>
         :root {
-            --primary: #1a365d;
-            --primary-light: #2b6cb0;
-            --secondary: #2d3748;
-            --accent: #2f855a;
-            --border: #cbd5e0;
-            --bg-light: #f7fafc;
+            --primary: #0f2d59;
+            --primary-light: #1e4f8a;
+            --accent: #d97706;
+            --text: #1f2937;
+            --border: #cbd5e1;
+            --receipt-bg: #fcfbf7; /* Warm classic security paper tone */
         }
         
         * {
@@ -19,41 +19,46 @@
         }
         
         body {
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #ebf8ff;
+            font-family: 'Georgia', Times, serif;
+            background-color: #f0f4f8;
             margin: 0;
             padding: 30px 15px;
-            color: #2d3748;
+            color: var(--text);
         }
         
         .container {
-            max-width: 850px;
+            max-width: 950px;
             margin: 0 auto;
         }
         
-        h1 {
+        .header-app {
             text-align: center;
-            color: var(--primary);
-            font-size: 22pt;
-            margin-bottom: 5px;
-            font-weight: 700;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #718096;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             margin-bottom: 25px;
-            font-size: 11pt;
         }
         
-        /* Form Card */
+        .header-app h1 {
+            color: var(--primary);
+            margin: 0 0 5px 0;
+            font-size: 24pt;
+            font-weight: 800;
+        }
+        
+        .header-app p {
+            color: #64748b;
+            margin: 0;
+            font-size: 10.5pt;
+        }
+        
+        /* Control Panel / Form */
         .form-card {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             background: white;
             padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(15, 45, 89, 0.08);
             margin-bottom: 35px;
-            border-top: 5px solid var(--primary-light);
+            border: 1px solid #e2e8f0;
         }
         
         .form-grid {
@@ -67,129 +72,160 @@
         
         .form-group {
             display: table-cell;
-            padding: 8px;
+            padding: 10px;
             vertical-align: top;
         }
         
-        .w-50 {
-            width: 50%;
-        }
-        
-        .w-100 {
-            width: 100%;
-            display: block;
-        }
+        .w-33 { width: 33.33%; }
+        .w-50 { width: 50%; }
+        .w-100 { width: 100%; display: block; }
         
         label {
-            font-size: 9pt;
+            font-size: 8.5pt;
             font-weight: bold;
             margin-bottom: 6px;
-            color: #4a5568;
+            color: #475569;
             display: block;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
         
-        input, textarea {
+        input, textarea, select {
             width: 100%;
-            padding: 10px;
+            padding: 11px;
             border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 10pt;
-            color: #2d3748;
-            transition: border-color 0.2s;
+            border-radius: 6px;
+            font-size: 9.5pt;
+            background-color: #f8fafc;
+            color: var(--text);
         }
         
-        input:focus, textarea:focus {
+        input:focus, textarea:focus, select:focus {
             border-color: var(--primary-light);
+            background-color: #fff;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(30, 79, 138, 0.15);
         }
         
         .button-area {
             text-align: center;
             margin-top: 15px;
-            padding: 0 8px;
+            padding: 0 10px;
         }
         
         button {
             width: 100%;
-            padding: 14px;
-            background-color: var(--accent);
+            padding: 15px;
+            background-color: var(--primary-light);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 11pt;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 3px 6px rgba(47, 133, 90, 0.2);
-            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 12px rgba(30, 79, 138, 0.2);
+            transition: all 0.2s;
         }
         
         button:hover {
-            background-color: #276749;
+            background-color: var(--primary);
+            box-shadow: 0 6px 16px rgba(15, 45, 89, 0.25);
+        }
+
+        /* ----------------------------------------------------
+           PREMIUM CORAK & VARIASI KUITANSI AREA 
+        ---------------------------------------------------- */
+        .receipt-shadow-box {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+            border-radius: 8px;
+            overflow: hidden;
         }
         
-        /* Receipt Preview / Printable Area */
         .receipt-box {
-            background: white;
-            border: 1px solid #1a202c;
-            padding: 40px;
+            background-color: var(--receipt-bg);
+            /* Corak Klasik Uang/Kuitansi: Fine elegant linear pattern fill */
+            background-image: 
+                linear-gradient(90deg, rgba(30, 79, 138, 0.015) 1px, transparent 1px),
+                linear-gradient(0deg, rgba(30, 79, 138, 0.015) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, rgba(217, 119, 6, 0.01) 0%, rgba(217, 119, 6, 0.02) 70%);
+            background-size: 16px 16px, 16px 16px, 100% 100%;
+            padding: 35px;
             position: relative;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            border-radius: 4px;
+            border: 6px double var(--primary);
         }
         
-        /* Double line top border for classic look */
-        .receipt-inner {
-            border: 1px solid #e2e8f0;
-            padding: 25px;
-            background: #fff;
+        /* Bingkai Ornamen Sudut Klasik */
+        .receipt-box::before {
+            content: "";
+            position: absolute;
+            top: 4px; left: 4px; right: 4px; bottom: 4px;
+            border: 1px solid rgba(15, 45, 89, 0.2);
+            pointer-events: none;
+        }
+        
+        /* Watermark LUNAS / PAID Elegan di Tengah */
+        .watermark-stamp {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-12deg);
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 65pt;
+            font-weight: 900;
+            color: rgba(217, 119, 6, 0.06); /* Sangat samar samar eksklusif */
+            border: 8px dashed rgba(217, 119, 6, 0.06);
+            padding: 10px 40px;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            pointer-events: none;
+            user-select: none;
+            border-radius: 15px;
         }
         
         .receipt-header {
             display: table;
             width: 100%;
-            border-bottom: 3px double #1a202c;
+            border-bottom: 2px solid var(--primary);
             padding-bottom: 15px;
             margin-bottom: 25px;
         }
         
         .header-left {
             display: table-cell;
-            vertical-align: middle;
-            width: 60%;
+            vertical-align: top;
+            width: 65%;
         }
         
         .header-right {
             display: table-cell;
-            vertical-align: middle;
+            vertical-align: top;
             text-align: right;
-            width: 40%;
+            width: 35%;
         }
         
-        /* Logo Section */
         .logo-container {
             display: table;
-            margin-bottom: 8px;
         }
         
         .logo-img-wrapper {
             display: table-cell;
             vertical-align: middle;
-            padding-right: 12px;
+            padding-right: 15px;
         }
         
+        /* Logo dengan corak lingkaran elegan badge */
         .logo-fallback {
             width: 65px;
             height: 65px;
-            background-color: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
             font-weight: bold;
-            font-size: 18pt;
+            font-size: 16pt;
             text-align: center;
             line-height: 65px;
-            border-radius: 8px;
-            letter-spacing: 1px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(15, 45, 89, 0.2);
+            border: 2px solid #fff;
         }
         
         .logo-text {
@@ -198,7 +234,8 @@
         }
         
         .company-name {
-            font-size: 15pt;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 14pt;
             font-weight: 800;
             color: var(--primary);
             letter-spacing: 0.5px;
@@ -207,44 +244,51 @@
         }
         
         .company-address {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             font-size: 8.5pt;
-            color: #4a5568;
+            color: #4b5563;
             line-height: 1.4;
-            margin-top: 3px;
-            max-width: 320px;
+            margin-top: 4px;
+            max-width: 380px;
         }
         
-        .receipt-title {
-            font-size: 24pt;
+        .receipt-title-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 6px 20px;
+            font-size: 18pt;
             font-weight: 900;
             letter-spacing: 4px;
-            color: var(--primary);
-            margin: 0;
+            display: inline-block;
+            border-radius: 4px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
         }
         
         .receipt-no {
-            font-size: 10pt;
-            color: #4a5568;
-            margin-top: 5px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 9.5pt;
+            color: #374151;
+            margin-top: 8px;
             font-weight: bold;
         }
         
-        /* Rows styling */
+        /* Rows Layout */
         .receipt-row {
             display: table;
             width: 100%;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
         
         .receipt-label {
             display: table-cell;
-            width: 180px;
+            width: 190px;
             font-weight: bold;
             text-transform: uppercase;
             font-size: 8.5pt;
-            color: #4a5568;
+            color: #4b5563;
             vertical-align: top;
             padding-top: 4px;
+            letter-spacing: 0.5px;
         }
         
         .receipt-separator {
@@ -253,30 +297,32 @@
             vertical-align: top;
             padding-top: 4px;
             font-weight: bold;
+            color: var(--primary);
         }
         
         .receipt-value {
             display: table-cell;
-            border-bottom: 1px dotted #718096;
+            border-bottom: 1px dashed #94a3b8;
             font-size: 11pt;
-            color: #1a202c;
+            color: #111827;
             padding-bottom: 4px;
             vertical-align: bottom;
+            line-height: 1.5;
         }
         
+        /* Corak khusus untuk Kotak Terbilang (Menggunakan border arsir) */
         .receipt-value.terbilang-box {
             font-style: italic;
-            background-color: #f7fafc;
-            border: 1px solid #e2e8f0;
-            padding: 8px 12px;
+            background-color: #f1f5f9;
+            border: 1px dashed var(--primary-light);
+            padding: 10px 14px;
             font-weight: bold;
             color: var(--primary);
             border-radius: 4px;
         }
         
-        /* Footer area */
         .receipt-footer {
-            margin-top: 40px;
+            margin-top: 45px;
             display: table;
             width: 100%;
         }
@@ -294,89 +340,112 @@
             text-align: right;
         }
         
+        /* Kotak Nominal dengan Variasi Ornamen Kiri */
+        .amount-badge-container {
+            display: inline-block;
+            position: relative;
+        }
+        
         .amount-badge {
-            font-size: 15pt;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-size: 16pt;
             font-weight: bold;
             border: 2px solid var(--primary);
-            padding: 12px 25px;
-            background: #edf2f7;
+            padding: 12px 30px;
+            background: #e2e8f0;
             display: inline-block;
             border-radius: 4px;
             color: var(--primary);
+            position: relative;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.05);
+        }
+        
+        .amount-badge::before {
+            content: "";
+            position: absolute;
+            left: 4px; top: 4px; bottom: 4px;
+            width: 4px;
+            background-color: var(--accent);
+            border-radius: 2px;
         }
         
         .signature-container {
             display: inline-block;
             text-align: center;
             width: 220px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
         }
         
         .signature-date {
             font-size: 9.5pt;
-            color: #4a5568;
-            margin-bottom: 50px;
+            color: #4b5563;
+            margin-bottom: 65px;
         }
         
         .signature-name {
             font-weight: bold;
             text-decoration: underline;
             font-size: 11pt;
-            color: #1a202c;
+            color: #111827;
             text-transform: uppercase;
         }
         
         .signature-title {
             font-size: 8.5pt;
-            color: #718096;
+            color: #6b7280;
             margin-top: 3px;
         }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .form-grid, .form-row {
-                display: block;
-            }
-            .form-group {
-                display: block;
-                width: 100% !important;
-            }
+        /* Corak Pilihan Warna dari panel */
+        .theme-emerald {
+            --primary: #064e3b;
+            --primary-light: #047857;
+            --receipt-bg: #f6fbf9;
+        }
+        
+        .theme-burgundy {
+            --primary: #4c0519;
+            --primary-light: #9f1239;
+            --receipt-bg: #fffbfb;
         }
 
-        /* Print CSS */
+        /* Print Override */
         @media print {
             @page {
                 size: A4 landscape;
-                margin: 15mm;
+                margin: 12mm;
             }
             body {
                 background: white;
                 padding: 0;
                 margin: 0;
             }
-            .form-card, h1, .subtitle, .button-area {
+            .form-card, .header-app, .button-area {
                 display: none;
             }
             .container {
                 max-width: 100%;
                 margin: 0;
             }
-            .receipt-box {
-                border: none;
+            .receipt-shadow-box {
                 box-shadow: none;
-                padding: 0;
+                border-radius: 0;
             }
-            .receipt-inner {
-                border: 2px solid #000;
+            .receipt-box {
+                border: 5px double #000 !important;
+                background-color: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .watermark-stamp {
+                color: rgba(0, 0, 0, 0.04) !important;
+                border-color: rgba(0, 0, 0, 0.04) !important;
             }
             .amount-badge {
-                background-color: #f0f4f8 !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                background-color: #e2e8f0 !important;
             }
             .receipt-value.terbilang-box {
-                background-color: #f7fafc !important;
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
+                background-color: #f1f5f9 !important;
             }
         }
     </style>
@@ -384,89 +453,105 @@
 <body>
 
 <div class="container">
-    <h1>Generator Kuitansi Digital</h1>
-    <div class="subtitle">Buat kuitansi profesional dengan logo & alamat instan. Siap cetak ke PDF / Printer.</div>
+    <div class="header-app">
+        <h1>Premium Kuitansi Generator</h1>
+        <p>Versi Bermotif Sekuritas Klasik dengan Fitur Watermark & Multi-Theme</p>
+    </div>
     
-    <!-- Form Input Pembuat Kuitansi -->
+    <!-- Form Panel Kontrol Variasi -->
     <div class="form-card">
         <div class="form-grid">
             <div class="form-row">
-                <div class="form-group w-50">
+                <div class="form-group w-33">
                     <label for="input-nomor">Nomor Kuitansi</label>
-                    <input type="text" id="input-nomor" value="No. 082/MHK-KUI/VII/2026" oninput="updateReceipt()">
+                    <input type="text" id="input-nomor" value="No. 1024/MHK/INV/VIII/2026" oninput="updateReceipt()">
                 </div>
-                <div class="form-group w-50">
+                <div class="form-group w-33">
                     <label for="input-kota">Tempat & Tanggal</label>
-                    <input type="text" id="input-kota" value="Yogyakarta, 15 Juli 2026" oninput="updateReceipt()">
+                    <input type="text" id="input-kota" value="Jakarta, 16 Juli 2026" oninput="updateReceipt()">
+                </div>
+                <div class="form-group w-33">
+                    <label for="input-tema">Corak Warna Tema</label>
+                    <select id="input-tema" onchange="changeTheme()">
+                        <option value="default">Biru Klasik Sekuritas</option>
+                        <option value="theme-emerald">Hijau Emerald Eksklusif</option>
+                        <option value="theme-burgundy">Merah Burgundy Premium</option>
+                    </select>
                 </div>
             </div>
             
             <div class="form-row">
+                <div class="form-group w-33">
+                    <label for="input-nama-perusahaan">Nama Perusahaan</label>
+                    <input type="text" id="input-nama-perusahaan" value="MHK Solutions Group" oninput="updateReceipt()">
+                </div>
+                <div class="form-group w-33">
+                    <label for="input-alamat">Alamat Instansi</label>
+                    <input type="text" id="input-alamat" value="Sudirman Central Business District (SCBD) Lot 28, Jakarta Selatan" oninput="updateReceipt()">
+                </div>
+                <div class="form-group w-33">
+                    <label for="input-watermark">Tulisan Cap Watermark</label>
+                    <input type="text" id="input-watermark" value="LUNAS" oninput="updateReceipt()">
+                </div>
+            </div>
+
+            <div class="form-row">
                 <div class="form-group w-50">
-                    <label for="input-nama-perusahaan">Nama Perusahaan / Unit</label>
-                    <input type="text" id="input-nama-perusahaan" value="MHK Group Indonesia" oninput="updateReceipt()">
+                    <label for="input-nama">Telah Diterima Dari</label>
+                    <input type="text" id="input-nama" value="CV. Sinar Abadi Kreatif" oninput="updateReceipt()">
                 </div>
                 <div class="form-group w-50">
-                    <label for="input-alamat">Alamat Perusahaan</label>
-                    <input type="text" id="input-alamat" value="Jl. Ringroad Utara No. 10, Sleman, DI Yogyakarta" oninput="updateReceipt()">
+                    <label for="input-penerima">Nama Penerima / Bendahara</label>
+                    <input type="text" id="input-penerima" value="Hendra Wijaya, M.B.A." oninput="updateReceipt()">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group w-100">
-                    <label for="input-nama">Telah Diterima Dari</label>
-                    <input type="text" id="input-nama" placeholder="Contoh: PT. Maju Jaya Sentosa" oninput="updateReceipt()">
-                </div>
-            </div>
-
-            <div class="form-row">
-                <div class="form-group w-50">
-                    <label for="input-jumlah">Jumlah Nominal (Rupiah)</label>
-                    <input type="number" id="input-jumlah" placeholder="Contoh: 7500000" oninput="updateReceipt()">
-                </div>
-                <div class="form-group w-50">
-                    <label for="input-penerima">Nama Penerima / Bendahara</label>
-                    <input type="text" id="input-penerima" placeholder="Contoh: Ahmad Budiman, S.E." oninput="updateReceipt()">
+                    <label for="input-jumlah">Jumlah Uang (Nominal Rp)</label>
+                    <input type="number" id="input-jumlah" value="12500000" oninput="updateReceipt()">
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group w-100">
                     <label for="input-untuk">Untuk Pembayaran</label>
-                    <textarea id="input-untuk" rows="2" placeholder="Contoh: Pelunasan biaya pembuatan website kuitansi generator dan maintenance server 1 tahun"></textarea>
+                    <textarea id="input-untuk" rows="2" oninput="updateReceipt()">Pengadaan infrastruktur jaringan server lokal, lisensi software core sistem, dan jasa instalasi konfigurasi firewall keamanan.</textarea>
                 </div>
             </div>
         </div>
         <div class="button-area">
-            <button onclick="window.print()">Cetak Kuitansi / Simpan PDF</button>
+            <button onclick="window.print()">Cetak Kuitansi Bermotif / Simpan PDF</button>
         </div>
     </div>
 
-    <!-- Tampilan Preview Kuitansi (Khas Indonesia) -->
-    <div class="receipt-box">
-        <div class="receipt-inner">
+    <!-- Tampilan Kuitansi Bercorak -->
+    <div class="receipt-shadow-box">
+        <div class="receipt-box" id="receipt-element">
+            <!-- Watermark Cap -->
+            <div class="watermark-stamp" id="rec-watermark">LUNAS</div>
+            
             <div class="receipt-header">
                 <div class="header-left">
                     <div class="logo-container">
                         <div class="logo-img-wrapper">
-                            <!-- Mencoba memuat mhk.png, jika gagal/tidak ada otomatis menampilkan inisial bergaya profesional -->
                             <img src="mhk.png" alt="MHK Logo" style="max-height: 65px; max-width: 150px; display: block;" onerror="this.style.display='none'; document.getElementById('logo-placeholder').style.display='block';">
                             <div id="logo-placeholder" class="logo-fallback" style="display: none;">MHK</div>
                         </div>
                         <div class="logo-text">
-                            <div class="company-name" id="rec-perusahaan">MHK Group Indonesia</div>
-                            <div class="company-address" id="rec-alamat">Jl. Ringroad Utara No. 10, Sleman, DI Yogyakarta</div>
+                            <div class="company-name" id="rec-perusahaan">MHK Solutions Group</div>
+                            <div class="company-address" id="rec-alamat">Sudirman Central Business District (SCBD) Lot 28, Jakarta Selatan</div>
                         </div>
                     </div>
                 </div>
                 <div class="header-right">
-                    <div class="receipt-title">KUITANSI</div>
-                    <div class="receipt-no">No. <span id="rec-nomor">082/MHK-KUI/VII/2026</span></div>
+                    <div class="receipt-title-badge">KUITANSI</div>
+                    <div class="receipt-no">No. <span id="rec-nomor">-</span></div>
                 </div>
             </div>
 
             <div class="receipt-row">
-                <div class="receipt-label">Telah diterima dari</div>
+                <div class="receipt-label">Sudah Diterima Dari</div>
                 <div class="receipt-separator">:</div>
                 <div class="receipt-value" id="rec-nama">-</div>
             </div>
@@ -485,15 +570,17 @@
 
             <div class="receipt-footer">
                 <div class="footer-left">
-                    <div class="amount-badge">
-                        Rp <span id="rec-jumlah">0</span>,-
+                    <div class="amount-badge-container">
+                        <div class="amount-badge">
+                            Rp <span id="rec-jumlah">0</span>,-
+                        </div>
                     </div>
                 </div>
                 <div class="footer-right">
                     <div class="signature-container">
-                        <div class="signature-date" id="rec-kota">Yogyakarta, 15 Juli 2026</div>
+                        <div class="signature-date" id="rec-kota">-</div>
                         <div class="signature-name" id="rec-penerima">-</div>
-                        <div class="signature-title">Penerima</div>
+                        <div class="signature-title">Tanda Tangan & Cap</div>
                     </div>
                 </div>
             </div>
@@ -502,30 +589,29 @@
 </div>
 
 <script>
-    // Algoritma Terbilang Bahasa Indonesia
+    function changeTheme() {
+        const theme = document.getElementById('input-tema').value;
+        const receipt = document.getElementById('receipt-element');
+        
+        // Reset classes
+        receipt.className = "receipt-box";
+        if (theme !== 'default') {
+            receipt.classList.add(theme);
+        }
+    }
+
     function kekata(nilai) {
         let angka = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
         let temp = "";
-        
-        if (nilai < 12) {
-            temp = " " + angka[nilai];
-        } else if (nilai < 20) {
-            temp = kekata(nilai - 10) + " Belas";
-        } else if (nilai < 100) {
-            temp = kekata(Math.floor(nilai / 10)) + " Puluh" + kekata(nilai % 10);
-        } else if (nilai < 200) {
-            temp = " Seratus" + kekata(nilai - 100);
-        } else if (nilai < 1000) {
-            temp = kekata(Math.floor(nilai / 100)) + " Ratus" + kekata(nilai % 100);
-        } else if (nilai < 2000) {
-            temp = " Seribu" + kekata(nilai - 1000);
-        } else if (nilai < 1000000) {
-            temp = kekata(Math.floor(nilai / 1000)) + " Ribu" + kekata(nilai % 1000);
-        } else if (nilai < 1000000000) {
-            temp = kekata(Math.floor(nilai / 1000000)) + " Juta" + kekata(nilai % 1000000);
-        } else if (nilai < 1000000000000) {
-            temp = kekata(Math.floor(nilai / 1000000000)) + " Milyar" + kekata(nilai % 1000000000);
-        }
+        if (nilai < 12) temp = " " + angka[nilai];
+        else if (nilai < 20) temp = kekata(nilai - 10) + " Belas";
+        else if (nilai < 100) temp = kekata(Math.floor(nilai / 10)) + " Puluh" + kekata(nilai % 10);
+        else if (nilai < 200) temp = " Seratus" + kekata(nilai - 100);
+        else if (nilai < 1000) temp = kekata(Math.floor(nilai / 100)) + " Ratus" + kekata(nilai % 100);
+        else if (nilai < 2000) temp = " Seribu" + kekata(nilai - 1000);
+        else if (nilai < 1000000) temp = kekata(Math.floor(nilai / 1000)) + " Ribu" + kekata(nilai % 1000);
+        else if (nilai < 1000000000) temp = kekata(Math.floor(nilai / 1000000)) + " Juta" + kekata(nilai % 1000000);
+        else if (nilai < 1000000000000) temp = kekata(Math.floor(nilai / 1000000000)) + " Milyar" + kekata(nilai % 1000000000);
         return temp;
     }
 
@@ -538,6 +624,7 @@
         const kota = document.getElementById('input-kota').value || '-';
         const perusahaan = document.getElementById('input-nama-perusahaan').value || '-';
         const alamat = document.getElementById('input-alamat').value || '-';
+        const watermark = document.getElementById('input-watermark').value || '';
         const nama = document.getElementById('input-nama').value || '-';
         const jumlahRaw = document.getElementById('input-jumlah').value;
         const penerima = document.getElementById('input-penerima').value || '-';
@@ -551,22 +638,22 @@
             terbilangText = (kekata(parseInt(jumlahRaw)) + " Rupiah").trim().replace(/\s+/g, ' ');
         }
 
-        // Live Update Element Kuitansi
         document.getElementById('rec-nomor').innerText = nomor;
         document.getElementById('rec-kota').innerText = kota;
         document.getElementById('rec-perusahaan').innerText = perusahaan;
         document.getElementById('rec-alamat').innerText = alamat;
+        document.getElementById('rec-watermark').innerText = watermark;
         document.getElementById('rec-nama').innerText = nama;
         document.getElementById('rec-jumlah').innerText = jumlahFormatted;
         document.getElementById('rec-terbilang').innerText = terbilangText;
         document.getElementById('rec-untuk').innerText = untuk;
         document.getElementById('rec-penerima').innerText = penerima;
+        
+        // Hide watermark if empty
+        document.getElementById('rec-watermark').style.display = watermark ? 'block' : 'none';
     }
 
-    // Attach listener ke textarea secara manual karena oninput di html kadang butuh trigger instan
-    document.getElementById('input-untuk').addEventListener('input', updateReceipt);
-    
-    // Inisialisasi awal
+    // Init values
     updateReceipt();
 </script>
 </body>
