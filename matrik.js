@@ -507,7 +507,7 @@ function renderBukuKalender() {
         
         // Render Kolom Akumulasi Total di Paling Ujung Kanan
         const cetakTotal = totalAkumulasiIuranBulanIni > 0 
-            ? `Rp ${totalAkumulasiIuranBulanIni.toLocaleString('id-ID')}` 
+            ? ` ${totalAkumulasiIuranBulanIni.toLocaleString('id-ID')}` 
             : '0';
         bodyHTML += `<td class="p-3 text-center font-black bg-slate-50/70 text-slate-800 border-b border-slate-100">${cetakTotal}</td>`;
         bodyHTML += `</tr>`;
