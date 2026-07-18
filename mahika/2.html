@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NusantaraTrip - Perjalanan Nyaman, Tiket Mudah</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1565C0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="NusantaraTrip">
+    
+    <!-- Web App Manifest (Inline Object URL via JS below for single-file compliance) -->
+    <link rel="manifest" id="pwa-manifest">
+
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* --- DESIGN SYSTEM & TOKENS --- */
+        :root {
+            --primary-blue: #1565C0;
+            --deep-navy: #133652;
+            --secondary-blue: #2A6885;
+            --sky-blue: #63C8F2;
+            --aqua: #37D5F4;
+            --orange-accent: #FF8A00;
+            --gold-button: #FFC83D;
+            --soft-white: #F7F9FC;
+            --dark-text: #1F2937;
+            --muted-text: #6B7280;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --radius-sm: 12px;
+            --radius-md: 18px;
+            --radius-lg: 24px;
+            --radius-xl: 28px;
+            --shadow-sm: 0 4px 6px -1px rgba(19, 54, 82, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(19, 54, 82, 0.08);
+            --shadow-lg: 0 20px 25px -5px rgba(19, 54, 82, 0.12);
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* --- BASE RESET --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark-text);
+            background-color: var(--soft-white);
+            overflow-x: hidden;
+        }
+
+        body {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        img, svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button, input, select {
+            font-family: inherit;
+            border: none;
+            outline: none;
+            background: none;
+        }
+
+        /* --- UTILITIES & LAYOUT --- */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section-padding {
+            padding: 80px 0;
+        }
+
+        @media (max-width: 768px) {
+            .section-padding {
+                padding: 48px 0;
+            }
+        }
+
+        .text-center { text-align: center; }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--deep-navy);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--muted-text);
+            margin-bottom: 40px;
+        }
+
+        /* --- GLASSMORPHISM --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* --- BUTTONS --- */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--orange-accent), var(--gold-button));
+            color: var(--deep-navy);
+            box-shadow: 0 4px 15px rgba(255, 138, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 138, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+        }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* --- STICKY NAVIGATION --- */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: var(--transition-smooth);
+            padding: 20px 0;
+        }
+
+        .header.scrolled {
+            padding: 12px 0;
+            background: rgba(21, 101, 192, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: var(--shadow-md);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .logo i {
+            color: var(--aqua);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+            position: relative;
+            padding: 4px 0;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: white;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--aqua);
+            transition: var(--transition-smooth);
+        }
+
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+
+        .menu-toggle {
+            display: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle { display: block; }
+            .nav-menu {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 75%;
+                height: 100vh;
+                background: var(--deep-navy);
+                flex-direction: column;
+                justify-content: center;
+                gap: 40px;
+                transition: var(--transition-smooth);
+                box-shadow: var(--shadow-lg);
+            }
+            .nav-menu.active {
+                right: 0;
+            }
+            .nav-link {
+                font-size: 1.2rem;
+            }
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue), var(--deep-navy));
+            min-height: 90vh;
+            padding-top: 140px;
+            padding-bottom: 180px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Ambient background decorations */
+        .hero::before, .hero::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .hero::before {
+            width: 400px;
+            height: 400px;
+            background: var(--aqua);
+            top: -10%;
+            right: -10%;
+        }
+
+        .hero::after {
+            width: 300px;
+            height: 300px;
+            background: var(--orange-accent);
+            bottom: 10%;
+            left: -5%;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            align-items: center;
+            gap: 48px;
+        }
+
+        @media (max-width: 992px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .hero-content {
+            z-index: 2;
+        }
+
+        .hero-headline {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+        }
+
+        .hero-headline span {
+            background: linear-gradient(to right, #ffffff, var(--aqua));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 36px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+        }
+
+        @media (max-width: 992px) {
+            .hero-headline { font-size: 2.5rem; }
+            .hero-subtitle { font-size: 1rem; }
+            .hero-cta { justify-content: center; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-cta { flex-direction: column; width: 100%; }
+            .hero-cta .btn { width: 100%; }
+        }
+
+        .hero-illustration {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .floating-svg {
+            animation: float 6s ease-in-out infinite;
+            width: 100%;
+            max-width: 460px;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
+        }
+
+        /* --- SEARCH TICKET CARD --- */
+        .search-container {
+            margin-top: -120px;
+            position: relative;
+            z-index: 10;
+            padding: 0 24px;
+        }
+
+        .search-card {
+            padding: 32px;
+            border-radius: var(--radius-xl);
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+            padding-bottom: 12px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--secondary-blue);
+            cursor: pointer;
+            position: relative;
+        }
+
+        .radio-label input {
+            display: none;
+        }
+
+        .custom-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--secondary-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition-smooth);
+        }
+
+        .custom-radio::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            background-color: var(--primary-blue);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: var(--transition-smooth);
+        }
+
+        .radio-label input:checked + .custom-radio {
+            border-color: var(--primary-blue);
+        }
+
+        .radio-label input:checked + .custom-radio::after {
+            transform: scale(1);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--deep-navy);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 16px;
+            color: var(--secondary-blue);
+            font-size: 1.1rem;
+        }
+
+        .input-wrapper input, .input-wrapper select {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: white;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            color: var(--dark-text);
+            font-weight: 500;
+            transition: var(--transition-smooth);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .input-wrapper input:focus, .input-wrapper select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(21, 101, 192, 0.1);
+        }
+
+        .btn-search {
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(21, 101, 192, 0.2);
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 52px;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(21, 101, 192, 0.3);
+        }
+
+        @media (max-width: 992px) {
+            .search-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+            .search-card {
+                padding: 24px;
+            }
+        }
+
+        /* --- SERVICES SECTION --- */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .services-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 576px) {
+            .services-grid { grid-template-columns: 1fr; }
+        }
+
+        .service-card {
+            background: white;
+            padding: 32px 24px;
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(21, 101, 192, 0.1);
+        }
+
+        .service-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(21, 101, 192, 0.06);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.6rem;
+            color: var(--primary-blue);
+            transition: var(--transition-smooth);
+        }
+
+        .service-card:hover .service-icon {
+            background: var(--primary-blue);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .service-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--deep-navy);
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            font-size: 0.9rem;
+            color: var(--muted-text);
+            line-height: 1.5;
+        }
+
+        /* --- POPULAR DESTINATIONS --- */
+        .destinations-wrapper {
+            position: relative;
+            margin: 0 -24px;
+            padding: 0 24px;
+        }
+
+        .destinations-scroll {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            padding: 20px 0 40px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .destinations-scroll::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .dest-card {
+            flex: 0 0 280px;
+            scroll-snap-align: start;
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            transition: var(--transition-smooth);
+        }
+
+        .dest-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .dest-image {
+            height: 180px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            overflow: hidden;
+        }
+
+        .dest-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to top, rgba(19, 54, 82, 0.6), transparent);
+        }
+
+        .dest-tag {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--primary-blue);
+            z-index: 2;
+        }
+
+        .dest-info {
+            padding: 20px;
+        }
+
+        .dest-info h4 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--deep-navy);
+            margin-bottom: 4px;
+        }
+
+        .dest-price {
+            font-size: 0.85rem;
+            color: var(--muted-text);
+            margin-bottom: 16px;
+        }
+
+        .dest-price span {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--orange-accent);
+        }
+
+        .btn-dest {
+            width: 100%;
+            padding: 10px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(21, 101, 192, 0.15);
+            color: var(--primary-blue);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .dest-card:hover .btn-dest {
+            background: var(--primary-blue);
+            color: white;
+            border-color: var(--primary-blue);
+        }
+
+        /* --- WHY CHOOSE US --- */
+        .why-choose-bg {
+            background: linear-gradient(180deg, white, var(--soft-white));
+        }
+
+        .why-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+        }
+
+        @media (max-width: 992px) {
+            .why-grid { grid-template-columns: 1fr; }
+        }
+
+        .why-items {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .why-item {
+            display: flex;
+            gap: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: var(--transition-smooth);
+        }
+
+        .why-item:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateX(5px);
+        }
+
+        .why-icon {
+            flex-shrink: 0;
+            width: 52px;
+            height: 52px;
+            background: rgba(55, 213, 244, 0.1);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--secondary-blue);
+        }
+
+        .why-text h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--deep-navy);
+            margin-bottom: 4px;
+        }
+
+        .why-text p {
+            font-size: 0.9rem;
+            color: var(--muted-text);
+            line-height: 1.5;
+        }
+
+        /* --- STATISTICS --- */
+        .stats-section {
+            background: linear-gradient(135deg, var(--deep-navy), var(--secondary-blue));
+            color: white;
+            padding: 60px 0;
+            position: relative;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        .stat-number {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--aqua);
+            margin-bottom: 4px;
+            letter-spacing: -1px;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        /* --- TESTIMONIALS --- */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .testimonials-grid { grid-template-columns: 1fr; }
+        }
+
+        .testi-card {
+            padding: 32px;
+            background: white;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            border-radius: var(--radius-lg);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .testi-card::before {
+            content: '\201C';
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            font-size: 5rem;
+            color: rgba(21, 101, 192, 0.05);
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .testi-text {
+            font-size: 0.95rem;
+            color: var(--dark-text);
+            line-height: 1.6;
+            font-style: italic;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .testi-profile {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .testi-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .testi-info h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--deep-navy);
+        }
+
+        .testi-info p {
+            font-size: 0.8rem;
+            color: var(--muted-text);
+            margin-bottom: 4px;
+        }
+
+        .testi-stars {
+            color: var(--gold-button);
+            font-size: 0.75rem;
+        }
+
+        /* --- CTA BANNER --- */
+        .cta-section {
+            padding-bottom: 80px;
+        }
+
+        .cta-box {
+            background: linear-gradient(135deg, var(--orange-accent), var(--gold-button));
+            border-radius: var(--radius-xl);
+            padding: 56px;
+            color: var(--deep-navy);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .cta-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .cta-desc {
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0.9;
+        }
+
+        .cta-box .btn {
+            background: var(--deep-navy);
+            color: white;
+            box-shadow: 0 4px 15px rgba(19, 54, 82, 0.2);
+        }
+
+        .cta-box .btn:hover {
+            background: #1d4b70;
+            box-shadow: 0 8px 20px rgba(19, 54, 82, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .cta-box { padding: 40px 24px; }
+            .cta-title { font-size: 1.8rem; }
+            .cta-desc { font-size: 0.95rem; }
+        }
+
+        /* --- FOOTER --- */
+        .footer {
+            background: var(--deep-navy);
+            color: rgba(255, 255, 255, 0.75);
+            padding: 64px 0 24px;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-logo i { color: var(--aqua); }
+
+        .footer-about p {
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.1rem;
+            transition: var(--transition-smooth);
+        }
+
+        .social-btn:hover {
+            background: var(--primary-blue);
+            transform: translateY(-3px);
+        }
+
+        .footer-links h5 {
+            color: white;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-links a {
+            transition: var(--transition-smooth);
+        }
+
+        .footer-links a:hover {
+            color: white;
+            padding-left: 4px;
+        }
+
+        .footer-bottom {
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            text-align: center;
+            font-size: 0.8rem;
+        }
+
+        /* --- INTERSECTION OBSERVER ANIMATIONS --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- STICKY NAVIGATION -->
+    <header class="header" id="header">
+        <div class="container nav-container">
+            <a href="#" class="logo">
+                <i class="fa-solid fa-compass"></i> NusantaraTrip
+            </a>
+            <ul class="nav-menu" id="nav-menu">
+                <li><a href="#" class="nav-link active">Home</a></li>
+                <li><a href="#services" class="nav-link">Bus</a></li>
+                <li><a href="#services" class="nav-link">Ferry</a></li>
+                <li><a href="#destinations" class="nav-link">Destinasi</a></li>
+                <li><a href="#footer" class="nav-link">Kontak</a></li>
+            </ul>
+            <div class="menu-toggle" id="menu-toggle">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="home">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <h1 class="hero-headline">Perjalanan Nyaman, <span>Tiket Mudah</span></h1>
+                <p class="hero-subtitle">Pesan tiket bus dan kapal ke seluruh Indonesia dalam hitungan detik. Rasakan kemudahan liburan premium dengan layanan andalan kami.</p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary ripple-btn" onclick="document.getElementById('search-ticket').scrollIntoView();">Pesan Sekarang <i class="fa-solid fa-arrow-right"></i></button>
+                    <button class="btn btn-secondary ripple-btn" onclick="document.getElementById('destinations').scrollIntoView();">Lihat Jadwal</button>
+                </div>
+            </div>
+            <div class="hero-illustration">
+                <!-- Clean Uncopyrighted SVG Illustration -->
+                <svg class="floating-svg" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#63C8F2" stop-opacity="0.8"/>
+                            <stop offset="100%" stop-color="#37D5F4" stop-opacity="0.2"/>
+                        </linearGradient>
+                        <linearGradient id="islandGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#2A6885"/>
+                            <stop offset="100%" stop-color="#133652"/>
+                        </linearGradient>
+                    </defs>
+                    <!-- Background Elements -->
+                    <circle cx="250" cy="200" r="140" fill="url(#skyGrad)" />
+                    <!-- Island/Mountain Silhouette -->
+                    <path d="M100,300 Q180,180 260,260 T420,240 L450,320 L50,320 Z" fill="url(#islandGrad)" />
+                    <!-- Stylized Bus Frame -->
+                    <g transform="translate(80, 240)">
+                        <rect width="130" height="60" rx="12" fill="#1565C0" />
+                        <rect x="5" y="5" width="40" height="25" rx="4" fill="#E0F2FE" />
+                        <rect x="50" y="5" width="35" height="25" rx="4" fill="#E0F2FE" />
+                        <rect x="90" y="5" width="35" height="25" rx="4" fill="#E0F2FE" />
+                        <circle cx="30" cy="60" r="14" fill="#133652" />
+                        <circle cx="30" cy="60" r="6" fill="#FFF" />
+                        <circle cx="100" cy="60" r="14" fill="#133652" />
+                        <circle cx="100" cy="60" r="6" fill="#FFF" />
+                    </g>
+                    <!-- Stylized Cruise Ship / Ferry Frame -->
+                    <g transform="translate(240, 210)">
+                        <path d="M20,50 L160,50 L180,25 L150,25 L145,10 L80,10 L75,25 L10,25 Z" fill="#FFF" />
+                        <path d="M10,25 L150,25 L140,50 L0,50 Z" fill="#FF8A00" opacity="0.85"/>
+                        <rect x="85" y="15" width="15" height="10" fill="#133652" />
+                        <rect x="105" y="15" width="15" height="10" fill="#133652" />
+                        <!-- Water Waves ripples -->
+                        <path d="M-50,55 Q-25,45 0,55 T50,55 T100,55 T150,55 T200,55" fill="none" stroke="#37D5F4" stroke-width="4" stroke-linecap="round" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEARCH TICKET CARD -->
+    <div class="container search-container" id="search-ticket">
+        <div class="glass-card search-card reveal">
+            <div class="search-tabs">
+                <label class="radio-label">
+                    <input type="radio" name="trans-type" value="bus" checked>
+                    <div class="custom-radio"></div>
+                    <span><i class="fa-solid fa-bus"></i> Bus</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="trans-type" value="ferry">
+                    <div class="custom-radio"></div>
+                    <span><i class="fa-solid fa-ship"></i> Ferry</span>
+                </label>
+            </div>
+            <form class="search-form" onsubmit="event.preventDefault(); alert('Mencari jadwal terbaik untuk Anda...');">
+                <div class="input-group">
+                    <label>Asal</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <select required>
+                            <option value="" disabled selected>Pilih Kota Asal</option>
+                            <option>Jakarta</option>
+                            <option>Yogyakarta</option>
+                            <option>Surabaya</option>
+                            <option>Semarang</option>
+                            <option>Batam</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Tujuan</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-location-arrow"></i>
+                        <select required>
+                            <option value="" disabled selected>Pilih Kota Tujuan</option>
+                            <option>Bali</option>
+                            <option>Lombok</option>
+                            <option>Surabaya</option>
+                            <option>Jakarta</option>
+                            <option>Makassar</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label>Tanggal Pergi</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <input type="date" required id="date-picker">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <button type="submit" class="btn-search ripple-btn">
+                        <i class="fa-solid fa-magnifying-glass"></i> Cari Tiket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SERVICES SECTION -->
+    <section class="section-padding" id="services">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title reveal">Layanan Eksekutif Komplit</h2>
+                <p class="section-subtitle reveal">Nikmati ekosistem transportasi terintegrasi yang dirancang khusus untuk kenyamanan Anda.</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card reveal">
+                    <div class="service-icon"><i class="fa-solid fa-bus"></i></div>
+                    <h3>Tiket Bus</h3>
+                    <p>Armada bus AKAP kelas eksekutif dan sleeper dengan fasilitas premium se-Indonesia.</p>
+                </div>
+                <div class="service-card reveal">
+                    <div class="service-icon"><i class="fa-solid fa-ship"></i></div>
+                    <h3>Tiket Kapal</h3>
+                    <p>Penyeberangan feri cepat & aman antarpulau utama dengan kemudahan check-in.</p>
+                </div>
+                <div class="service-card reveal">
+                    <div class="service-icon"><i class="fa-solid fa-box-open"></i></div>
+                    <h3>Pengiriman Barang</h3>
+                    <p>Layanan logistik kilat via jalur darat dan laut dengan pelacakan real-time aman.</p>
+                </div>
+                <div class="service-card reveal">
+                    <div class="service-icon"><i class="fa-solid fa-headset"></i></div>
+                    <h3>CS 24 Jam</h3>
+                    <p>Tim support responsif siap mendampingi kendala perjalanan Anda kapan saja.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- POPULAR DESTINATIONS -->
+    <section class="section-padding" style="background-color: #FFF;" id="destinations">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title reveal">Destinasi Terpopuler</h2>
+                <p class="section-subtitle reveal">Jelajahi keindahan Nusantara dengan rute favorit pilihan travelers.</p>
+            </div>
+            <div class="destinations-wrapper reveal">
+                <div class="destinations-scroll" id="dest-scroll">
+                    <!-- Dynamic rendering framework fallback placeholder cards -->
+                    <div class="dest-card">
+                        <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=400&q=80')">
+                            <span class="dest-tag">Jalur Darat</span>
+                        </div>
+                        <div class="dest-info">
+                            <h4>Yogyakarta</h4>
+                            <p class="dest-price">Mulai dari <span>Rp 180rb</span></p>
+                            <button class="btn-dest">Pesan Tiket <i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="dest-card">
+                        <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1555881400-74d7acaacd8b?auto=format&fit=crop&w=400&q=80')">
+                            <span class="dest-tag">Jalur Darat</span>
+                        </div>
+                        <div class="dest-info">
+                            <h4>Jakarta</h4>
+                            <p class="dest-price">Mulai dari <span>Rp 220rb</span></p>
+                            <button class="btn-dest">Pesan Tiket <i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="dest-card">
+                        <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80')">
+                            <span class="dest-tag">Jalur Laut</span>
+                        </div>
+                        <div class="dest-info">
+                            <h4>Bali</h4>
+                            <p class="dest-price">Mulai dari <span>Rp 350rb</span></p>
+                            <button class="btn-dest">Pesan Tiket <i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="dest-card">
+                        <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=400&q=80')">
+                            <span class="dest-tag">Jalur Darat</span>
+                        </div>
+                        <div class="dest-info">
+                            <h4>Surabaya</h4>
+                            <p class="dest-price">Mulai dari <span>Rp 290rb</span></p>
+                            <button class="btn-dest">Pesan Tiket <i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="dest-card">
+                        <div class="dest-image" style="background-image: url('https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=400&q=80')">
+                            <span class="dest-tag">Jalur Laut</span>
+                        </div>
+                        <div class="dest-info">
+                            <h4>Lombok</h4>
+                            <p class="dest-price">Mulai dari <span>Rp 420rb</span></p>
+                            <button class="btn-dest">Pesan Tiket <i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WHY CHOOSE US -->
+    <section class="section-padding why-choose-bg">
+        <div class="container why-grid">
+            <div class="reveal">
+                <h2 class="section-title">Mengapa Memilih NusantaraTrip?</h2>
+                <p class="section-subtitle" style="margin-bottom: 24px;">Standardisasi kenyamanan digital terbaik demi kepuasan mobilitas Anda.</p>
+                <!-- SVG Asset inside grids -->
+                <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" style="max-width:320px;" class="floating-svg">
+                    <rect x="50" y="50" width="300" height="200" rx="24" fill="#1565C0" opacity="0.08"/>
+                    <circle cx="200" cy="150" r="60" fill="#37D5F4" opacity="0.3"/>
+                    <path d="M150,150 L180,180 L250,110" fill="none" stroke="#1565C0" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+            <div class="why-items">
+                <div class="why-item reveal">
+                    <div class="why-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="why-text">
+                        <h4>Agen Resmi Terpercaya</h4>
+                        <p>Kemitraan langsung berlisensi resmi dari Kemenhub RI dan operator transportasi terkemuka.</p>
+                    </div>
+                </div>
+                <div class="why-item reveal">
+                    <div class="why-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="why-text">
+                        <h4>Pemesanan Instan Kilat</h4>
+                        <p>Tanpa antre, e-tiket diterbitkan instan dalam hitungan detik langsung ke dashboard PWA Anda.</p>
+                    </div>
+                </div>
+                <div class="why-item reveal">
+                    <div class="why-icon"><i class="fa-solid fa-credit-card"></i></div>
+                    <div class="why-text">
+                        <h4>Sistem Pembayaran Aman</h4>
+                        <p>Proteksi enkripsi mutakhir mendukung QRIS, Virtual Account bank utama, hingga e-wallet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATISTICS SECTION -->
+    <section class="stats-section">
+        <div class="container stats-grid">
+            <div>
+                <div class="stat-number" data-target="10000">0</div>
+                <div class="stat-label">Pelanggan Puas</div>
+            </div>
+            <div>
+                <div class="stat-number" data-target="500">0</div>
+                <div class="stat-label">Rute Antarkota</div>
+            </div>
+            <div>
+                <div class="stat-number" data-target="100">0</div>
+                <div class="stat-label">Mitra Resmi</div>
+            </div>
+            <div>
+                <div class="stat-number" style="color:var(--gold-button)">4.9</div>
+                <div class="stat-label">Rating Aplikasi</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS SECTION -->
+    <section class="section-padding">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title reveal">Ulasan Travelers</h2>
+                <p class="section-subtitle reveal">Kisah nyata dari mereka yang telah mempercayakan perjalanannya kepada kami.</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testi-card reveal">
+                    <p class="testi-text">"Pesan tiket sleeper bus ke Jogja lewat PWA ini gampang banget. User interfacenya bersih, mirip aplikasi native iOS. Sangat premium!"</p>
+                    <div class="testi-profile">
+                        <div class="testi-avatar">A</div>
+                        <div class="testi-info">
+                            <h5>Arya Kusuma</h5>
+                            <p>Premium Member</p>
+                            <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testi-card reveal">
+                    <p class="testi-text">"Sangat terbantu waktu mau menyeberang ke Ketapang-Gilimanuk. Tiket langsung dapet QR code buat langsung di-scan di gerbang masuk pelabuhan."</p>
+                    <div class="testi-profile">
+                        <div class="testi-avatar">N</div>
+                        <div class="testi-info">
+                            <h5>Nadia Putri</h5>
+                            <p>Rutin Backpacker</p>
+                            <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testi-card reveal">
+                    <p class="testi-text">"Customer servicenya juara. Waktu jadwal kapal saya reschedule karena cuaca, CS langsung sigap kabarin & proses refund instan tanpa ribet."</p>
+                    <div class="testi-profile">
+                        <div class="testi-avatar">B</div>
+                        <div class="testi-info">
+                            <h5>Budi Santoso</h5>
+                            <p>Business Traveler</p>
+                            <div class="testi-stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA BANNER -->
+    <section class="container cta-section">
+        <div class="cta-box reveal">
+            <h2 class="cta-title">Siap Berangkat Hari Ini?</h2>
+            <p class="cta-desc">Dapatkan diskon eksklusif hingga 20% untuk pemesanan pertama Anda melalui web PWA ini. Kuota terbatas setiap harinya!</p>
+            <button class="btn ripple-btn" onclick="document.getElementById('search-ticket').scrollIntoView();">Pesan Sekarang <i class="fa-solid fa-ticket"></i></button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer" id="footer">
+        <div class="container footer-grid">
+            <div class="footer-about">
+                <div class="footer-logo"><i class="fa-solid fa-compass"></i> NusantaraTrip</div>
+                <p>NusantaraTrip adalah platform keagenan tiket transportasi darat dan laut premium terintegrasi terkemuka di Indonesia. Berkomitmen menghadirkan perjalanan modern tanpa hambatan.</p>
+                <div class="social-links">
+                    <a href="#" class="social-btn"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="#" class="social-btn"><i class="fa-brands fa-facebook-f"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h5>Layanan Kami</h5>
+                <ul>
+                    <li><a href="#services">Pemesanan Bus VIP</a></li>
+                    <li><a href="#services">Ferry Cepat Executive</a></li>
+                    <li><a href="#services">Kargo Jalur Laut</a></li>
+                    <li><a href="#services">Sewa Bus Pariwisata</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h5>Bantuan & Kontak</h5>
+                <ul>
+                    <li><a href="#">Pusat Bantuan FAQ</a></li>
+                    <li><a href="#">Syarat & Ketentuan</a></li>
+                    <li><a href="#">Kebijakan Privasi</a></li>
+                    <li><a href="mailto:support@nusantaratrip.com">support@nusantaratrip.com</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 NusantaraTrip. Hak Cipta Dilindungi. PWA Premium Mobile Experience.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT & LOGIC -->
+    <script>
+        // Inline base64 PWA Manifest Injection for Single File Requirements
+        const manifest = {
+            "name": "NusantaraTrip Travel PWA",
+            "short_name": "NusantaraTrip",
+            "start_url": ".",
+            "display": "standalone",
+            "background_color": "#F7F9FC",
+            "theme_color": "#1565C0",
+            "description": "Premium Indonesian Bus and Ferry Online Ticket Agent Landing Page Portal.",
+            "icons": [
+                {
+                    "src": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/compass.svg",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml"
+                }
+            ]
+        };
+        const manifestStr = JSON.stringify(manifest);
+        const blob = new Blob([manifestStr], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        document.getElementById('pwa-manifest').setAttribute('href', manifestURL);
+
+        // Min Date Picker constraints set to today
+        const datePicker = document.getElementById('date-picker');
+        if(datePicker) {
+            const today = new Date().toISOString().split('T')[0];
+            datePicker.min = today;
+            datePicker.value = today;
+        }
+
+        // Sticky & Gradient Header Dynamic Effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Hamburger Menu Mobile Logic
+        const menuToggle = document.getElementById('menu-toggle');
+        const navMenu = document.getElementById('nav-menu');
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = menuToggle.querySelector('i');
+                if(navMenu.classList.contains('active')) {
+                    icon.className = "fa-solid fa-xmark";
+                } else {
+                    icon.className = "fa-solid fa-bars-staggered";
+                }
+            });
+            // Auto close menu on nav links hit
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    menuToggle.querySelector('i').className = "fa-solid fa-bars-staggered";
+                });
+            });
+        }
+
+        // Custom Material Ripple Engine
+        document.querySelectorAll('.ripple-btn, .btn, .btn-search').forEach(button => {
+            button.addEventListener('click', function(e) {
+                let x = e.clientX - e.target.getBoundingClientRect().left;
+                let y = e.clientY - e.target.getBoundingClientRect().top;
+                let ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.left = `${x}px`;
+                ripple.style.top = `${y}px`;
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Intersection Observer UI Reveal System 
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Premium Stats Counter Animation System
+        const statNumbers = document.querySelectorAll('.stat-number');
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const target = entry.target;
+                    const endVal = parseInt(target.getAttribute('data-target'), 10);
+                    if(!endVal) return; // Skip if no numeric conversion target exists
+                    let startVal = 0;
+                    let duration = 2000;
+                    let startTime = null;
+
+                    function animateCount(timestamp) {
+                        if (!startTime) startTime = timestamp;
+                        const progress = timestamp - startTime;
+                        const current = Math.min(Math.floor((progress / duration) * endVal), endVal);
+                        target.innerText = current.toLocaleString('id-ID') + '+';
+                        if (progress < duration) {
+                            window.requestAnimationFrame(animateCount);
+                        } else {
+                            target.innerText = endVal.toLocaleString('id-ID') + '+';
+                        }
+                    }
+                    window.requestAnimationFrame(animateCount);
+                    statsObserver.unobserve(target);
+                }
+            });
+        }, { threshold: 0.5 });
+        statNumbers.forEach(num => statsObserver.observe(num));
+
+        // Horizontal Drag Scrolling Optimization for Popular Destinations (Mobile & Trackpads)
+        const slider = document.getElementById('dest-scroll');
+        let isDown = false; let startX; let scrollLeft;
+        if(slider) {
+            slider.addEventListener('mousedown', (e) => {
+                isDown = true;
+                startX = e.pageX - slider.offsetLeft;
+                scrollLeft = slider.scrollLeft;
+            });
+            slider.addEventListener('mouseleave', () => isDown = false);
+            slider.addEventListener('mouseup', () => isDown = false);
+            slider.addEventListener('mousemove', (e) => {
+                if(!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - slider.offsetLeft;
+                const walk = (x - startX) * 2;
+                slider.scrollLeft = scrollLeft - walk;
+            });
+        }
+    </script>
+</body>
+</html>
